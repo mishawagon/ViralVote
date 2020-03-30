@@ -1,5 +1,10 @@
 "use strict";
 
+//https://rosettacode.org/wiki/Map_range#JavaScript
+let mapRange = function(from, to, s) {
+  return to[0] + (s - from[0]) * (to[1] - to[0]) / (from[1] - from[0]);
+};
+
 
 // SETTINGS of this demo:
 const SETTINGS = {
@@ -12,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [], tVoteLoad = [], drumpfStartColor=null;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [], tVoteLoad = [], drumpfStartColor=null, ViralLoadBar = null;
 let ISDETECTED = false;
 
 
@@ -605,12 +610,34 @@ function init_babylonScene(spec){
     //rectangle.color = "yellow";
 
     rectangle.width = "600px";
-    rectangle.height = "100px";
+    rectangle.height = "60px";
     rectangle.thickness = 0;
     rectangle.top = "-5px";
 
     advancedTexture.addControl(rectangle);
 
+
+
+    //Viral Load lifebar
+
+    ViralLoadBar = new BABYLON.GUI.Rectangle("ViralLoadBar");
+    ViralLoadBar.background = "#0cfadb";
+
+
+    ViralLoadBar.width = "580px";
+    ViralLoadBar.height = "60px";
+    ViralLoadBar.thickness = 4;
+    ViralLoadBar.cornerRadius = 10;
+    ViralLoadBar.color = "black";//"#005b75";
+    ViralLoadBar.left = "-580px";
+    //ViralLoadBar.top = "-5px";
+    //ViralLoadBar.horizontalAlignment = 0;
+
+    advancedTexture.addControl(ViralLoadBar);
+
+
+
+    //Viral Load Text
     text1 = new BABYLON.GUI.TextBlock("text1");
 
     text1.fontFamily = 'vag_roundedregular';
@@ -619,9 +646,13 @@ function init_babylonScene(spec){
 
 
     text1.text = "Hover in this long text to apply spacing. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.";
-    text1.color = "yellow";
-    text1.fontSize = "50px";
-    rectangle.addControl(text1);
+    text1.color = "white";
+    text1.fontSize = "35px";
+
+    text1.top = "-13px";
+
+    advancedTexture.addControl(text1);
+
 
   BABYLONSCENE.debugLayer.show();
 
@@ -756,6 +787,10 @@ function main(){
       }
 
       text1.text = "VIRAL LOAD: "+tViralLoad.length;//+Math.round(ViralLoad/ViralUnload * 1000);
+      var maxViralLoad = 200; //Stay under the max to survive
+      var truncatedViralLoad = tViralLoad.length > maxViralLoad ? maxViralLoad : tViralLoad.length;
+
+      ViralLoadBar.left = mapRange([0,maxViralLoad],[-580,0],truncatedViralLoad) + "px";
       // reinitialize the state of BABYLON.JS because JEEFACEFILTER have changed stuffs:
       BABYLONENGINE.wipeCaches(true);
 
