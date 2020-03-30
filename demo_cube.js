@@ -12,7 +12,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [];
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [], tVoteLoad = [];
 let ISDETECTED = false;
 
 
@@ -180,9 +180,11 @@ function init_babylonScene(spec){
 
   ground.rotation.x = 290 * (Math.PI /180);
 
+
+
   // Viral particle system
   var particleNb = 2000;
-  SPS = new BABYLON.SolidParticleSystem('SPS', BABYLONSCENE, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true, expandable: true});
+  var SPS = new BABYLON.SolidParticleSystem('SPS', BABYLONSCENE, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true, expandable: true});
   //SPS.billboard = true;
   SPS.addShape(plane, particleNb);
 
@@ -393,15 +395,12 @@ function init_babylonScene(spec){
     //particle.color.a = 1.0;
   };
 
+  //Drumpf's collision sphere
   var matSphereDrumpf = new BABYLON.StandardMaterial("msDrumpf", BABYLONSCENE);
-
   matSphereDrumpf.diffuseColor = BABYLON.Color3.Blue();
-
   matSphereDrumpf.alpha = 0;
   sphereDrumpf = BABYLON.Mesh.CreateSphere("sphereDrumpf", 10, .4, BABYLONSCENE);
-
   sphereDrumpf.getBoundingInfo().boundingSphere.scale(0.4);
-
   sphereDrumpf.material = matSphereDrumpf;
 
 
@@ -415,6 +414,9 @@ function init_babylonScene(spec){
 
     // intersection
     if (particle.intersectsMesh(sphereDrumpf)) {
+
+        if (!tVoteLoad.includes(particle.idx)) { tVoteLoad.push(particle.idx)};
+
         particle.position.addToRef(mesh2.position, tmpPos2);                  // particle World position
         tmpPos2.subtractToRef(sphere.position, tmpNormal2);                   // normal to the sphere
         tmpNormal2.normalize();                                              // normalize the sphere normal
@@ -442,15 +444,7 @@ function init_babylonScene(spec){
         }
 
         if (VoteLevel == 20) {
-/*
-          SPS.removeParticles(0, 1900);
-          tViralLoad = [];
-          SPS.buildMesh();
-          SPS.setParticles();
-          console.log("!!!!!!!!!!!!!!!!!!!!")
-          console.log("!!!!!!!!!!!!!!!!!!!!")
-          console.log("!!!!!!!!!!!!!!!!!!!!")
-          */
+
         }
 
         if (VoteLevel == 100) { DRUMPF.dispose(); }
@@ -458,7 +452,10 @@ function init_babylonScene(spec){
 
     } else {
 
-      //ViralUnload += 1;
+      if (tVoteLoad.includes(particle.idx)) {
+        var index = tVoteLoad.indexOf(particle.idx);
+        if (index !== -1) tVoteLoad.splice(index, 1);
+      };
     }
 
 
@@ -492,6 +489,8 @@ function init_babylonScene(spec){
 
 
 
+  // Create and load the sound async
+  //var voteOutSound = new BABYLON.Sound("voteOut", "sounds/voteOut.wav", scene, null, { loop: false, autoplay: false });
 
 
 
@@ -514,26 +513,41 @@ function init_babylonScene(spec){
       pl.excludedMeshes.push(newMeshes[0]);
       DRUMPF = newMeshes[0];
 
-
+      //sound
+      //voteOutSound.attachToMesh(DRUMPF);
   });
-
-
-
+  //sound
+  /*
+	var myAnalyser = new BABYLON.Analyser(scene);
+	BABYLON.Engine.audioEngine.connectToAnalyser(myAnalyser);
+	myAnalyser.FFT_SIZE = 3;
+	myAnalyser.SMOOTHING = 0.9;
+  */
 
   //Thanos effect variables
   var time = 0;
   var rate = 0;//0.01;
 
-  // animation
+  // animation of Drumpf's head
   BABYLONSCENE.registerBeforeRender(function() {
 
-    if (DRUMPF != null) {
+    if (DRUMPF != null) { //Animate drupmf's head
       DRUMPF.position.x = 0.4 * Math.sin(k);
       var rotationBounds = [142, 214]; //best looking rotation angle bounds
       DRUMPF.rotation.y = ((rotationBounds[0] + (rotationBounds[1] - rotationBounds[0])/2) + ((rotationBounds[1] - rotationBounds[0])/2) * Math.cos(k)) * (Math.PI/180);
       //142 214
 
       DRUMPF.rotation.y = (36 * Math.sin(k) * -1 + 178) * (Math.PI/180);
+
+      if (tVoteLoad.length > 0) {
+        DRUMPF.scaling.x = 2.5+0.5*Math.random();
+        DRUMPF.scaling.y = 2.5+0.5*Math.random();
+        DRUMPF.scaling.z = 2.5+0.5*Math.random();
+
+      } else {
+        DRUMPF.scaling.set(3,3,3);
+      }
+
     }
 
     SPS.setParticles();
@@ -546,6 +560,9 @@ function init_babylonScene(spec){
 
     //for Thanos effect
     time+=BABYLONSCENE.getAnimationRatio()*rate;
+
+    //sound
+    //var analyzedSound = myAnalyser.getByteFrequencyData();
   });
 
 
@@ -561,20 +578,22 @@ function init_babylonScene(spec){
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(textBack, 1024, 1024);
 
     var rectangle = new BABYLON.GUI.Rectangle("rect");
-    //rectangle.background = "black";
+    rectangle.background = "#005b75";
     //rectangle.color = "yellow";
 
     rectangle.width = "600px";
-    rectangle.height = "200px";
+    rectangle.height = "80px";
     rectangle.thickness = 0;
+    rectangle.top = "15px";
 
     advancedTexture.addControl(rectangle);
 
     text1 = new BABYLON.GUI.TextBlock("text1");
 
-    text1.fontFamily = "Futura";
+    text1.fontFamily = 'vag_roundedregular';
     text1.textWrapping = true;
     text1.lineSpacing = "0px";
+
 
     text1.text = "Hover in this long text to apply spacing. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.";
     text1.color = "yellow";
@@ -705,7 +724,7 @@ function main(){
         da_sphere.rotation.set(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);//
 
 
-        if (sphereDrumpf != null) {
+        if (sphereDrumpf != null && DRUMPF != null) {
           sphereDrumpf.position.set(DRUMPF.position.x-.1, DRUMPF.position.y+.15, DRUMPF.position.z);
         }
 
