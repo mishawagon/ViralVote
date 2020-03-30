@@ -1,8 +1,8 @@
 a {color: #eee; text-decoration: none}
 a:hover {color: blue;}
 body {overflow: auto; overflow-y: auto;
-  background-color: white;
-  background-image: url('bg.png');
+  background-color: #271101;
+  background-image: url('../textures/Covid19-2.png');
   background-attachment: fixed;
   background-position: center;
   background-size: contain;
