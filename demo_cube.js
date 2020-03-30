@@ -12,7 +12,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false;
 let ISDETECTED = false;
 
 
@@ -25,9 +25,13 @@ function smoothStep(edge0, edge1, x){
 // callback launched if a face is detected or lost:
 function detect_callback(isDetected){
   if (isDetected){
-    //console.log('INFO in detect_callback(): DETECTED');
+    GLOB_face = true;
+    console.log('INFO in detect_callback(): DETECTED');
+    da_sphere.scaling.x = 1;da_sphere.scaling.y = 1;da_sphere.scaling.z = 1;
   } else {
-    //console.log('INFO in detect_callback(): LOST');
+      GLOB_face = false;
+    console.log('INFO in detect_callback(): LOST');
+    da_sphere.scaling.x = 0;da_sphere.scaling.y = 0;da_sphere.scaling.z = 0;
   }
 }
 
@@ -101,6 +105,16 @@ function init_babylonScene(spec){
   matBox.emissiveColor = BABYLON.Color3.Green();
   box.material = matBox;
 
+
+  // texture and material
+ var url = "textures/virus.png";//"http://upload.wikimedia.org/wikipedia/en/8/86/Einstein_tongue.jpg";
+ var mat = new BABYLON.StandardMaterial("mat1", scene);
+ mat.backFaceCulling = false;
+ var texture = new BABYLON.Texture(url, scene);
+ mat.diffuseTexture = texture;
+
+ var plane = BABYLON.Mesh.CreatePlane("plane", 0.09, scene);
+
   var matSphere = new BABYLON.StandardMaterial("ms", scene);
   var matGround = new BABYLON.StandardMaterial("mg", scene);
   matSphere.diffuseColor = BABYLON.Color3.Blue();
@@ -125,11 +139,22 @@ function init_babylonScene(spec){
   // Particle system
   var particleNb = 2000;
   var SPS = new BABYLON.SolidParticleSystem('SPS', scene, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true});
+  //SPS.billboard = true;
+  SPS.addShape(plane, particleNb);
 
-  SPS.addShape(box, particleNb);
-  box.dispose();
+
   var mesh = SPS.buildMesh();
+
+
+
+  mesh.material = mat;
+
+  //mesh.hasVertexAlpha = true;
+  mesh.material.diffuseTexture.hasAlpha = true;
+  mesh.material.useAlphaFromDiffuseTexture = true;
+  plane.dispose();
   SPS.isAlwaysVisible = true;
+
 
 
 
@@ -169,14 +194,14 @@ function init_babylonScene(spec){
     particle.velocity.y = (Math.random() - 0.3) * cone * speed;
     particle.velocity.z = (Math.random() - 0.5) * cone * speed;
 
-    particle.rotation.x = Math.random() * Math.PI;
+    particle.rotation.x = Math.PI/2;//Math.random() * Math.PI;
     particle.rotation.y = Math.random() * Math.PI;
     particle.rotation.z = Math.random() * Math.PI;
 
-    particle.color.r = 0.0;
-    particle.color.g = 1.0;
-    particle.color.b = 0.0;
-    particle.color.a = 1.0;
+    //particle.color.r = 0.0;
+    //particle.color.g = 1.0;
+    //particle.color.b = 0.0;
+    //particle.color.a = 1.0;
   };
 
 
@@ -189,7 +214,7 @@ function init_babylonScene(spec){
     }
 
     // intersection
-    if (particle.intersectsMesh(sphere)) {
+    if (particle.intersectsMesh(sphere) && GLOB_face) {
         particle.position.addToRef(mesh.position, tmpPos);                  // particle World position
         tmpPos.subtractToRef(sphere.position, tmpNormal);                   // normal to the sphere
         tmpNormal.normalize();                                              // normalize the sphere normal
@@ -207,8 +232,8 @@ function init_babylonScene(spec){
 
 
 
-        particle.color.r = 0.6;
-        particle.color.b = 0.8;
+        //particle.color.r = 0.6;
+        //particle.color.b = 0.8;
     }
     // update velocity, rotation and position
     particle.velocity.y += gravity;                         // apply gravity to y
@@ -223,11 +248,17 @@ function init_babylonScene(spec){
 
   // init all particle values
   SPS.initParticles();
+    SPS.setParticles();
 
+
+  SPS.computeParticleRotation = false;
+  SPS.computeParticleColor = false;
+  SPS.computeParticleTexture = false;
 
   //scene.debugLayer.show();
   // animation
   scene.registerBeforeRender(function() {
+    //SPS.billboard = true;
     SPS.setParticles();
     //sphere.position.x = 0;//20.0 * Math.sin(k);
     //sphere.position.z = 6;//10.0 * Math.sin(k * 6.0);
