@@ -12,7 +12,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, ParticleFountain = null, ParticleSystemGlobal = null;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, ParticleFountain = null, ParticleSystemGlobal = null, da_sphere = null;
 let ISDETECTED = false;
 
 
@@ -67,120 +67,179 @@ function init_babylonScene(spec){
 
   // misha adds particle system from Babylon.js playground particle system example.
   var scene = BABYLONSCENE; //need to set a scene for brought-in particle system example.
-  // Fountain object
-  //var fountain = BABYLON.Mesh.CreateBox("foutain", 1.0, scene);
-  ParticleFountain = BABYLON.Mesh.CreateBox("foutain", 1.0, scene);
-  ParticleFountain.position.set(0,2,5);
 
-  const cubeMaterial2 = new BABYLON.StandardMaterial("material", BABYLONSCENE);
-  cubeMaterial2.emissiveColor = new BABYLON.Color3(0, 0.28, 0.36);
-  //misha turning off cubes
-  cubeMaterial2.alpha = 0.0;
-
-
-  ParticleFountain.material = cubeMaterial2;
-  var fountain = ParticleFountain;
-
-
-
-    // Create a particle system
-  //  var particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
-
-    //misha gpu particle option
-    var particleSystem;
-
-    //console.log(BABYLON.GPUParticleSystem.IsSupported)
-    if (BABYLON.GPUParticleSystem.IsSupported) {
-      particleSystem = new BABYLON.GPUParticleSystem("particles", { capacity:1000000 }, scene);
-      particleSystem.activeParticleCount = 20000;
-
-    } else {
-        var particleSystem = new BABYLON.ParticleSystem("particles", 2000, scene);
-    }
-
-
-  //Texture of each particle
-  particleSystem.particleTexture = new BABYLON.Texture("textures/flare_vert.png", scene);
-
-  // Where the particles come from
-  particleSystem.emitter = fountain; // the starting object, the emitter
-  particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting all from
-  particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // To...
-
-  // Colors of all particles
-  particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
-  particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
-  particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
-
-  // Size of each particle (random between...
-  particleSystem.minSize = 0.1;
-  particleSystem.maxSize = 0.5;
-
-  // Life time of each particle (random between...
-  particleSystem.minLifeTime = 0.3;
-  particleSystem.maxLifeTime = 1.5;
-
-  // Emission rate
-  particleSystem.emitRate = 15000;
-
-  // Blend mode : BLENDMODE_ONEONE, or BLENDMODE_STANDARD
-  particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
-
-  // Set the gravity of all particles
-  particleSystem.gravity = new BABYLON.Vector3(0, -800, 0);
-
-  // Direction of each particle after it has been emitted
-  particleSystem.direction1 = new BABYLON.Vector3(-1, 0, -5);
-  particleSystem.direction2 = new BABYLON.Vector3(1, 0, -5);
-
-  // Angular speed, in radians
-  particleSystem.minAngularSpeed = 0;//-Math.PI*6;
-  particleSystem.maxAngularSpeed = 0;//Math.PI*6;
-
-  particleSystem.minInitialRotation = 0;
-  particleSystem.maxInitialRotation = 0;
-
-
-  particleSystem.addDragGradient(0, 0.5, 3.1);
-
-  // Speed
-  particleSystem.minEmitPower = 8;
-  particleSystem.maxEmitPower = 20;
-  particleSystem.updateSpeed = 0.01;
-
-  // Start the particle system
-  particleSystem.start();
-  ParticleSystemGlobal = particleSystem;
+  scene.clearColor = new BABYLON.Color3( .4, .6, .9);
+  //var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene);
+  //camera.setPosition(new BABYLON.Vector3(0, 0, 0));
+  //camera.attachControl(canvas, true);
 
   /*
-  // Fountain's animation
-  var keys = [];
-  var animation = new BABYLON.Animation("animation", "rotation.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-  BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-  // At the animation key 0, the value of scaling is "1"
-  keys.push({
-      frame: 0,
-      value: 0
-  });
+  var light = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(-1, -2, -1), scene);
+  light.groundColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+  light.intensity = 0.7;
 
-  // At the animation key 50, the value of scaling is "0.2"
-  keys.push({
-      frame: 50,
-      value: Math.PI
-  });
 
-  // At the animation key 100, the value of scaling is "1"
-  keys.push({
-      frame: 100,
-      value: 0
-  });
-
-  // Launch animation
-  animation.setKeys(keys);
-  fountain.animations.push(animation);
-  scene.beginAnimation(fountain, 0, 100, true);
+  var pl = new BABYLON.PointLight("pl", new BABYLON.Vector3(0, 0, 0), scene);
+  pl.diffuse = new BABYLON.Color3(1, 1, 1);
+  pl.specular = new BABYLON.Color3(1, 1, 0.8);
+  pl.intensity = 0.85;
+  pl.position = camera.position;
   */
-  // end misha addition
+
+  var sphereRadius = 18.0/18.0 *.75;
+  var boxSize = 4.0/18.0;
+  var ground = BABYLON.MeshBuilder.CreateDisc("gd", {radius: 1000.0}, scene);
+  var sphere = BABYLON.Mesh.CreateSphere("sphere", 10, sphereRadius * 2.0, scene);
+da_sphere = sphere;
+  var box = BABYLON.MeshBuilder.CreateBox("b", {size: boxSize}, scene);
+  var poly = BABYLON.MeshBuilder.CreatePolyhedron("p", {size: boxSize, type: 4, flat: true}, scene);
+  var tetra = BABYLON.MeshBuilder.CreatePolyhedron("t", {size: boxSize / 2.0, flat: true}, scene);
+  var matSphere = new BABYLON.StandardMaterial("ms", scene);
+  var matGround = new BABYLON.StandardMaterial("mg", scene);
+  matSphere.diffuseColor = BABYLON.Color3.Red();
+
+  matSphere.alpha = 0.01; //misha
+  matGround.diffuseColor = new BABYLON.Color3(0.8, 0.5, 0.3);
+  matGround.specularColor = BABYLON.Color3.Black();
+  sphere.material = matSphere;
+  ground.material = matGround;
+  ground.rotation.x = Math.PI / 2.0;
+  ground.position.y = -100;
+  ground.freezeWorldMatrix();
+  matSphere.freeze();
+  matGround.freeze();
+
+  // Particle system
+  var particleNb = 1500;
+  var nb = (particleNb / 3)|0;
+  var SPS = new BABYLON.SolidParticleSystem('SPS', scene, {particleIntersection: true});
+  SPS.addShape(box, nb);
+  SPS.addShape(poly, nb);
+  SPS.addShape(tetra, nb)
+  box.dispose();
+  poly.dispose();
+  tetra.dispose();
+  var mesh = SPS.buildMesh();
+  SPS.computeBoundingBox = true;
+  SPS.computeParticleTexture = false;
+
+  // Shadows
+  /*
+  var shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
+  shadowGenerator.getShadowMap().renderList.push(mesh, sphere);
+  shadowGenerator.useBlurExponentialShadowMap = true;
+  ground.receiveShadows = true;
+  */
+
+  // position things
+  mesh.position.x = -10;
+  mesh.position.y = -1;
+  mesh.position.z = 6;
+
+  mesh.freezeWorldMatrix();
+  var sphereAltitude = mesh.position.y / 2.0;
+  sphere.position.y = sphereAltitude;
+
+
+  // shared variables
+  var speed = .01;                  // particle max speed
+  var cone = .3;                   // emitter aperture
+  var gravity = (-speed / 120) * 500;       // gravity
+  var restitution = 0.01;           // energy restitution
+  var k = 0.0;
+  var sign = 1;
+  var tmpPos = BABYLON.Vector3.Zero();          // current particle world position
+  var tmpNormal = BABYLON.Vector3.Zero();       // current sphere normal on intersection point
+  var tmpDot = 0.0;                             // current dot product
+  var bboxesComputed = false;                   // the bbox are actually computed only after the first particle.update()
+
+
+  // SPS initialization : just recycle all
+  SPS.initParticles = function() {
+    for (var p = 0; p < SPS.nbParticles; p++) {
+      SPS.recycleParticle(SPS.particles[p]);
+    }
+  };
+
+  // recycle : reset the particle at the emitter origin
+  SPS.recycleParticle = function(particle) {
+    particle.position.x = 0;
+    particle.position.y = 0;
+    particle.position.z = 0;
+    particle.velocity.x = Math.random() * speed + 0.5;
+    particle.velocity.y = (Math.random() - 0.3) * cone * speed + 0.5;
+    particle.velocity.z = (Math.random() - 0.5) * cone * speed;
+
+    particle.rotation.x = Math.random() * Math.PI;
+    particle.rotation.y = Math.random() * Math.PI;
+    particle.rotation.z = Math.random() * Math.PI;
+
+    particle.scaling.x = Math.random() + 0.1;
+    particle.scaling.y = Math.random() + 0.1;
+    particle.scaling.z = Math.random() + 0.1;
+
+    particle.color.r = Math.random() + 0.1;
+    particle.color.g = Math.random() + 0.1;
+    particle.color.b = Math.random() + 0.1;
+    particle.color.a = 1.0;
+  };
+
+
+  // particle behavior
+  SPS.updateParticle = function(particle) {
+
+    // recycle if touched the ground
+    if ((particle.position.y + mesh.position.y) < (ground.position.y + boxSize)) {
+      particle.position.y = ground.position.y - mesh.position.y + boxSize / 2.0;
+        this.recycleParticle(particle);
+      return;
+    }
+
+    // update velocity, rotation and position
+    particle.velocity.y += gravity;                         // apply gravity to y
+    (particle.position).addInPlace(particle.velocity);      // update particle new position
+    sign = (particle.idx % 2 == 0) ? 1 : -1;                // rotation sign and then new value
+    particle.rotation.z += 0.1 * sign;
+    particle.rotation.x += 0.05 * sign;
+    particle.rotation.y += 0.008 * sign;
+
+    // intersection
+    if (bboxesComputed && particle.intersectsMesh(sphere)) {
+        particle.position.addToRef(mesh.position, tmpPos);                  // particle World position
+        tmpPos.subtractToRef(sphere.position, tmpNormal);                   // normal to the sphere
+        tmpNormal.normalize();                                              // normalize the sphere normal
+        tmpDot = BABYLON.Vector3.Dot(particle.velocity, tmpNormal);            // dot product (velocity, normal)
+        // bounce result computation
+        particle.velocity.x = -particle.velocity.x + 2.0 * tmpDot * tmpNormal.x;
+        particle.velocity.y = -particle.velocity.y + 2.0 * tmpDot * tmpNormal.y;
+        particle.velocity.z = -particle.velocity.z + 2.0 * tmpDot * tmpNormal.z;
+        particle.velocity.scaleInPlace(restitution);                      // aply restitution
+        particle.rotation.x *= -1.0;
+        particle.rotation.y *= -1.0;
+        particle.rotation.z *= -1.0;
+        }
+  };
+
+  SPS.afterUpdateParticles = function() {
+    bboxesComputed = true;
+  };
+
+  // init all particle values
+  SPS.initParticles();
+  SPS.setParticles();   // set at least the colors once
+  SPS.computeParticleColor = false;
+
+  scene.debugLayer.show();
+  // animation
+  scene.registerBeforeRender(function() {
+    SPS.setParticles();
+
+    //sphere.position.x = 0;//30.0 * Math.sin(k);
+    //sphere.position.z = 0;//20.0 * Math.sin(k * 6.0);
+    //sphere.position.y = 6;//8.0 * Math.sin(k * 8.0) + sphereAltitude;
+
+    k += 0.02;
+  });
 
   // ADD A LIGHT:
   const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 1, 0), BABYLONSCENE);
@@ -277,25 +336,34 @@ function main(){
         mouthOpening = smoothStep(0.35, 0.7, mouthOpening);
         JAWMESH.position.y = -(0.5+0.15+0.01+0.7*mouthOpening*0.5);
 
+
+
+
+            da_sphere.position.x = x;
+            da_sphere.position.y = y+SETTINGS.pivotOffsetYZ[0];
+            da_sphere.position.z = -z-SETTINGS.pivotOffsetYZ[1];
+
+
+            //console.log("x "+x+" y "+(y+SETTINGS.pivotOffsetYZ[0])+" z "+(-z-SETTINGS.pivotOffsetYZ[1]));
+
         //misha add affect on particle system
         //ParticleFountain
         //ParticleFountain.position.set(x,y+SETTINGS.pivotOffsetYZ[0],-z-SETTINGS.pivotOffsetYZ[1]);
         //misha offset fountain vertically
         //var FountainOffsetZ = 0;
-        ParticleFountain.position.set(x,3,7);
+        //ParticleFountain.position.set(x,3,7);
 
 
-        ParticleFountain.rotation.set(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);//"XYZ" rotation order;
+        //ParticleFountain.rotation.set(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);//"XYZ" rotation order;
 
-        ParticleSystemGlobal.minInitialRotation = detectState.rz;
-        ParticleSystemGlobal.maxInitialRotation = detectState.rz;
+        //ParticleSystemGlobal.minInitialRotation = detectState.rz;
+        //ParticleSystemGlobal.maxInitialRotation = detectState.rz;
 
         //var orientation = new BABYLON.Vector3(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);
 
         //console.log(orientation);
 
         //ParticleSystemGlobal.direction1 = orientation;
-
 
       }
 
