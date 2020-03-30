@@ -12,7 +12,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", ViralLoad=0, ViralUnload = 0, MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0;
 let ISDETECTED = false;
 
 
@@ -29,11 +29,44 @@ function detect_callback(isDetected){
     console.log('INFO in detect_callback(): DETECTED');
     da_sphere.scaling.x = 1;da_sphere.scaling.y = 1;da_sphere.scaling.z = 1;
   } else {
-      GLOB_face = false;
+    GLOB_face = false;
     console.log('INFO in detect_callback(): LOST');
     da_sphere.scaling.x = 0;da_sphere.scaling.y = 0;da_sphere.scaling.z = 0;
   }
 }
+
+//Effect from https://www.babylonjs-playground.com/#TZJ0HQ#18
+var thanosFX =
+`varying vec2 vUV;
+uniform sampler2D textureSampler;
+uniform vec2 screenSize;
+
+uniform sampler2D noiseRef0;
+uniform sampler2D noiseRef1;
+
+uniform float time;
+
+
+void main(void){
+
+    vec2 unit = vUV/screenSize;
+    unit*=16.0+(sin(time*0.5)*50.0);
+    vec2 pos = vUV;
+    pos.x += sin(time*0.35);
+    pos.y -= time*0.2;
+    vec2 r = ((texture2D(noiseRef0, pos).rb)*2.0-1.0)*unit;
+
+
+    vec3 c = texture2D(textureSampler, vUV+r).rgb;
+
+
+
+   gl_FragColor = vec4(c, 1.0);
+}
+`;
+
+BABYLON.Effect.ShadersStore['thanosEffectFragmentShader'] = thanosFX;
+
 
 // build the 3D. called once when Jeeliz Face Filter is OK:
 function init_babylonScene(spec){
@@ -57,7 +90,8 @@ function init_babylonScene(spec){
   // CREATE A CUBE:
   const cubeMaterial = new BABYLON.StandardMaterial("material", BABYLONSCENE);
   cubeMaterial.emissiveColor = new BABYLON.Color3(0, 0.28, 0.36);
-  //misha turning off cubes
+  //misha turning off cubes by making them transparent.
+  //they are useful for head and mouth tracking reference/debugging.
   cubeMaterial.alpha = 0.0;
 
   const babylonCube = new BABYLON.Mesh.CreateBox("box", 1, BABYLONSCENE);
@@ -71,17 +105,27 @@ function init_babylonScene(spec){
   BABYLONFACEOBJ3DPIVOTED.addChild(JAWMESH);
   JAWMESH.position.set(0,-(0.5+0.15+0.01),0);
 
-  // misha adds particle system from Babylon.js playground particle system example.
-  var scene = BABYLONSCENE; //need to set a scene for brought-in particle system example.
 
-  scene.clearColor = new BABYLON.Color3( .2, .3, .6);
+  MouthMesh = BABYLON.Mesh.CreatePlane("mouth", 1, BABYLONSCENE);
+  const mouthMat = new BABYLON.StandardMaterial("mouthMat", BABYLONSCENE);
+  mouthMat.emissiveColor = new BABYLON.Color3(1, .5, .3);
+
+  mouthMat.alpha = 0;
+
+  MouthMesh.material = mouthMat;
+  BABYLONFACEOBJ3DPIVOTED.addChild(MouthMesh);
+  MouthMesh.position.set(0,-0.4,0);
+
+
+
+  BABYLONSCENE.clearColor = new BABYLON.Color3( .2, .3, .6);
   /*
- //camera already made later, and so is light
-  var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, -0), scene);
+ //camera already made later, and so is the light so turning this off in example code
+  var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, -0), BABYLONSCENE);
   camera.setPosition(new BABYLON.Vector3(0, 0, 0));
   camera.attachControl(canvas, true);
   */
-  var pl = new BABYLON.PointLight("pl", new BABYLON.Vector3(0, 0, 0), scene);
+  var pl = new BABYLON.PointLight("pl", new BABYLON.Vector3(0, 0, 0), BABYLONSCENE);
   pl.diffuse = new BABYLON.Color3(1, 1, 1);
   pl.specular = new BABYLON.Color3(1, 1, 0.8);
   pl.intensity = 0.95;
@@ -93,30 +137,30 @@ function init_babylonScene(spec){
 
 
   var sphereRadius = .55;
-  var ground = BABYLON.MeshBuilder.CreateGround("gd", {width: 10.0, height: 10.0}, scene);
-  var sphere = BABYLON.Mesh.CreateSphere("sphere", 10, sphereRadius * 2.0, scene);
+  var ground = BABYLON.MeshBuilder.CreateGround("gd", {width: 10.0, height: 10.0}, BABYLONSCENE);
+  var sphere = BABYLON.Mesh.CreateSphere("sphere", 10, sphereRadius * 2.0, BABYLONSCENE);
 
   sphere.getBoundingInfo().boundingSphere.scale(0.4);
 
   da_sphere = sphere;
 
-  var box = BABYLON.MeshBuilder.CreateBox("b", {size: 0.05}, scene);
-  var matBox = new BABYLON.StandardMaterial("mb", scene);
+  var box = BABYLON.MeshBuilder.CreateBox("b", {size: 0.05}, BABYLONSCENE);
+  var matBox = new BABYLON.StandardMaterial("mb", BABYLONSCENE);
   matBox.emissiveColor = BABYLON.Color3.Green();
   box.material = matBox;
 
 
   // texture and material
- var url = "textures/virus.png";//"http://upload.wikimedia.org/wikipedia/en/8/86/Einstein_tongue.jpg";
- var mat = new BABYLON.StandardMaterial("mat1", scene);
+ var url = "textures/Covid19.png";//"http://upload.wikimedia.org/wikipedia/en/8/86/Einstein_tongue.jpg";
+ var mat = new BABYLON.StandardMaterial("mat1", BABYLONSCENE);
  mat.backFaceCulling = false;
- var texture = new BABYLON.Texture(url, scene);
+ var texture = new BABYLON.Texture(url, BABYLONSCENE);
  mat.diffuseTexture = texture;
 
- var plane = BABYLON.Mesh.CreatePlane("plane", 0.09, scene);
+ var plane = BABYLON.Mesh.CreatePlane("plane", 0.09, BABYLONSCENE);
 
-  var matSphere = new BABYLON.StandardMaterial("ms", scene);
-  var matGround = new BABYLON.StandardMaterial("mg", scene);
+  var matSphere = new BABYLON.StandardMaterial("ms", BABYLONSCENE);
+  var matGround = new BABYLON.StandardMaterial("mg", BABYLONSCENE);
   matSphere.diffuseColor = BABYLON.Color3.Blue();
   matGround.diffuseColor = new BABYLON.Color3(0.5, 0.45, 0.4);
 
@@ -136,9 +180,9 @@ function init_babylonScene(spec){
 
   ground.rotation.x = 290 * (Math.PI /180);
 
-  // Particle system
+  // Viral particle system
   var particleNb = 2000;
-  var SPS = new BABYLON.SolidParticleSystem('SPS', scene, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true});
+  var SPS = new BABYLON.SolidParticleSystem('SPS', BABYLONSCENE, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true});
   //SPS.billboard = true;
   SPS.addShape(plane, particleNb);
 
@@ -215,6 +259,8 @@ function init_babylonScene(spec){
 
     // intersection
     if (particle.intersectsMesh(sphere) && GLOB_face) {
+
+
         particle.position.addToRef(mesh.position, tmpPos);                  // particle World position
         tmpPos.subtractToRef(sphere.position, tmpNormal);                   // normal to the sphere
         tmpNormal.normalize();                                              // normalize the sphere normal
@@ -225,16 +271,12 @@ function init_babylonScene(spec){
         particle.velocity.z = -particle.velocity.z + 2.0 * tmpDot * tmpNormal.z;
         particle.velocity.scaleInPlace(restitution);                      // aply restitution
 
-/* makest stuff jittery but bounce works better */
-        //particle.rotation.x *= -1.0;
-         //particle.rotation.y *= -1.0;
-         //particle.rotation.z *= -1.0;
+    } else {
 
-
-
-        //particle.color.r = 0.6;
-        //particle.color.b = 0.8;
+      //ViralUnload += 1;
     }
+
+
     // update velocity, rotation and position
     particle.velocity.y += gravity;                         // apply gravity to y
     (particle.position).addInPlace(particle.velocity);      // update particle new position
@@ -248,25 +290,263 @@ function init_babylonScene(spec){
 
   // init all particle values
   SPS.initParticles();
-    SPS.setParticles();
-
+  SPS.setParticles();
 
   SPS.computeParticleRotation = false;
   SPS.computeParticleColor = false;
   SPS.computeParticleTexture = false;
 
-  //scene.debugLayer.show();
+
+  // Second particle CreatePlane
+  var plane2 = BABYLON.Mesh.CreatePlane("plane2", 1, BABYLONSCENE);
+
+
+  // Second particle material
+
+  // texture and material
+  var url2 = "textures/voteVirus.png";//"http://upload.wikimedia.org/wikipedia/en/8/86/Einstein_tongue.jpg";
+  var mat2 = new BABYLON.StandardMaterial("mat2", BABYLONSCENE);
+  mat2.backFaceCulling = false;
+  var texture2 = new BABYLON.Texture(url2, BABYLONSCENE);
+  mat2.diffuseTexture = texture2;
+
+
+  // Second mouth spew particle system
+
+  var particleNb2 = 10;
+  SPS2 = new BABYLON.SolidParticleSystem('SPS2', BABYLONSCENE, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true});
+  //SPS.billboard = true;
+  SPS2.addShape(plane2, particleNb2);
+
+
+  var mesh2 = SPS2.buildMesh();
+
+
+
+  mesh2.material = mat2;
+
+  //mesh.hasVertexAlpha = true;
+  mesh2.material.diffuseTexture.hasAlpha = true;
+  mesh2.material.useAlphaFromDiffuseTexture = true;
+
+  mesh2.position.y = -0.5;
+  mesh2.position.z = -.5;
+
+  BABYLONFACEOBJ3DPIVOTED.addChild(mesh2);
+
+  plane2.dispose();
+  SPS2.isAlwaysVisible = true;
+
+
+
+
+  // shared variables
+  var speed2 = .1;                  // particle max speed
+  var cone2 = 0.9;                   // emitter aperture
+  var gravity2 = -speed / 100;       // gravity
+  var restitution2 = 0;           // energy restitution
+  var k2 = 0.0;
+  var sign2 = 1;
+  var tmpPos2 = BABYLON.Vector3.Zero();          // current particle world position
+  var tmpNormal2 = BABYLON.Vector3.Zero();       // current sphere normal on intersection point
+  var tmpDot2 = 0.0;                             // current dot product
+
+
+
+  // position things
+
+  mesh2.rotation.x = 0;
+  mesh2.rotation.y = 100 * (Math.PI/180);
+  mesh2.rotation.z = 300  * (Math.PI/180);
+
+  // SPS initialization : just recycle all
+  SPS2.initParticles = function() {
+    for (var p = 0; p < SPS2.nbParticles; p++) {
+      SPS2.recycleParticle(SPS2.particles[p]);
+    }
+  };
+
+  // recycle : reset the particle at the emitter origin
+  SPS2.recycleParticle = function(particle) {
+    particle.position.x = 0;
+    particle.position.y = 0;
+    particle.position.z = 0;
+    particle.velocity.x = Math.random() * speed2;
+    particle.velocity.y = (Math.random() - 0.3) * cone2 * speed2;
+    particle.velocity.z = (Math.random() - 0.5) * cone2 * speed2;
+
+    particle.rotation.x = Math.PI/2;//Math.random() * Math.PI;
+    particle.rotation.y = Math.random() * Math.PI;
+    particle.rotation.z = Math.random() * Math.PI;
+
+    //particle.color.r = 0.0;
+    //particle.color.g = 1.0;
+    //particle.color.b = 0.0;
+    //particle.color.a = 1.0;
+  };
+
+  var matSphereDrumpf = new BABYLON.StandardMaterial("msDrumpf", BABYLONSCENE);
+
+  matSphereDrumpf.diffuseColor = BABYLON.Color3.Blue();
+
+  matSphereDrumpf.alpha = 0;
+  sphereDrumpf = BABYLON.Mesh.CreateSphere("sphereDrumpf", 10, .4, BABYLONSCENE);
+
+  sphereDrumpf.getBoundingInfo().boundingSphere.scale(0.4);
+
+  sphereDrumpf.material = matSphereDrumpf;
+
+
+  // particle behavior
+  SPS2.updateParticle = function(particle) {
+
+    // recycle if touched the ground
+    if ((particle.position.y + mesh2.position.y) < ground.position.y) {
+      this.recycleParticle(particle);
+    }
+
+    // intersection
+    if (particle.intersectsMesh(sphereDrumpf)) {
+        particle.position.addToRef(mesh2.position, tmpPos2);                  // particle World position
+        tmpPos2.subtractToRef(sphere.position, tmpNormal2);                   // normal to the sphere
+        tmpNormal2.normalize();                                              // normalize the sphere normal
+        tmpDot2 = BABYLON.Vector3.Dot(particle.velocity, tmpNormal2);            // dot product (velocity, normal)
+        // bounce result computation
+        particle.velocity.x = -particle.velocity.x + 2.0 * tmpDot2 * tmpNormal2.x;
+        particle.velocity.y = -particle.velocity.y + 2.0 * tmpDot2 * tmpNormal2.y;
+        particle.velocity.z = -particle.velocity.z + 2.0 * tmpDot2 * tmpNormal2.z;
+        particle.velocity.scaleInPlace(restitution2);                      // aply restitution
+
+        VoteLevel += 1;
+        //console.log(VoteLevel);
+        if (VoteLevel > 100) { VoteLevel = 100; }
+        if (DRUMPF != null) {
+          var drumpfMaterial = new BABYLON.StandardMaterial("material", BABYLONSCENE);
+          var drumpfStartColor = new BABYLON.Color3(255/255,165/155,0);
+          var drumpfEndColor = new BABYLON.Color3(255/255,0,0);
+          drumpfMaterial.emissiveColor = BABYLON.Color3.Lerp(drumpfStartColor, drumpfEndColor, VoteLevel/100);
+          DRUMPF.material = drumpfMaterial;
+        }
+
+
+
+    } else {
+
+      //ViralUnload += 1;
+    }
+
+
+    // update velocity, rotation and position
+    particle.velocity.y += gravity2;                         // apply gravity to y
+    (particle.position).addInPlace(particle.velocity);      // update particle new position
+    sign2 = (particle.idx % 2 == 0) ? 1 : -1;                // rotation sign and then new value
+    particle.rotation.z += 0.1 * sign2;
+    particle.rotation.x += 0.05 * sign2;
+    particle.rotation.y += 0.008 * sign2;
+
+    if (mouthOpening > 0.92 && GLOB_face) {
+      particle.isVisible = true;
+    } else {
+      if (GLOB_face) {
+        this.recycleParticle(particle);
+        particle.isVisible = false;
+      }
+
+    }
+  };
+
+  // init all particle values
+  SPS2.initParticles();
+  SPS2.setParticles();
+
+
+  SPS2.computeParticleRotation = false;
+  SPS2.computeParticleColor = false;
+  SPS2.computeParticleTexture = false;
+
+
+
+
+
+
+  // The first parameter can be used to specify which mesh to import. Here we import all meshes
+  BABYLON.SceneLoader.ImportMesh("", "meshes/", "Trump_lowPoly_print.stl", BABYLONSCENE, function (newMeshes) {
+      // Set the target of the camera to the first imported mesh
+      newMeshes[0].scaling.x = 3;
+      newMeshes[0].scaling.y = 3;
+      newMeshes[0].scaling.z = 3;
+
+      newMeshes[0].position.x = 1;
+      newMeshes[0].position.y = -0.40;
+      newMeshes[0].position.z = 4;
+
+      newMeshes[0].rotation.x = 330 * (Math.PI/180);
+      newMeshes[0].rotation.y = 128 * (Math.PI/180);
+      newMeshes[0].rotation.z = 0;
+
+      DRUMPF = newMeshes[0];
+
+
+  });
+
+
+
+
+  //Thanos effect variables
+  var time = 0;
+  var rate = 0;//0.01;
+
   // animation
-  scene.registerBeforeRender(function() {
+  BABYLONSCENE.registerBeforeRender(function() {
     //SPS.billboard = true;
     SPS.setParticles();
+
+
+    SPS2.setParticles();
+
     //sphere.position.x = 0;//20.0 * Math.sin(k);
     //sphere.position.z = 6;//10.0 * Math.sin(k * 6.0);
     //sphere.position.y = 0;//5.0 * Math.sin(k * 10) + sphereAltitude;
     k += 0.01;
+
+    //for Thanos effect
+    time+=BABYLONSCENE.getAnimationRatio()*rate;
   });
 
-  //scene.debugLayer.show();
+
+
+  var textBack = BABYLON.Mesh.CreateGround("textBack1", 26, 26, 2, BABYLONSCENE);
+  textBack.rotation = new BABYLON.Vector3(0, 0, 0);
+  textBack.position = new BABYLON.Vector3(0, 0, 0);
+
+  textBack.position.x = 0; textBack.position.y = 6.5; textBack.position.z = 20;
+  textBack.rotation.x = 270 * (Math.PI/180); textBack.rotation.y = 180 * (Math.PI/180); textBack.rotation.z = 0;
+
+  //Line spacing in pixels with pointer enter/out observable
+    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(textBack, 1024, 1024);
+
+    var rectangle = new BABYLON.GUI.Rectangle("rect");
+    //rectangle.background = "black";
+    //rectangle.color = "yellow";
+
+    rectangle.width = "600px";
+    rectangle.height = "200px";
+    rectangle.thickness = 0;
+
+    advancedTexture.addControl(rectangle);
+
+    text1 = new BABYLON.GUI.TextBlock("text1");
+
+    text1.fontFamily = "Futura";
+    text1.textWrapping = true;
+    text1.lineSpacing = "0px";
+
+    text1.text = "Hover in this long text to apply spacing. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.";
+    text1.color = "yellow";
+    text1.fontSize = "50px";
+    rectangle.addControl(text1);
+
+  BABYLONSCENE.debugLayer.show();
 
   // ADD A LIGHT:
   const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 1, 0), BABYLONSCENE);
@@ -310,6 +590,24 @@ function init_babylonScene(spec){
   BABYLONCAMERA.minZ = 0.1;
   BABYLONCAMERA.maxZ = 100;
   ASPECTRATIO = BABYLONENGINE.getAspectRatio(BABYLONCAMERA);
+
+
+
+    //Thanos effect
+
+    var postEffect = new BABYLON.PostProcess("thanosEffect", "thanosEffect", ["time", "screenSize"], ["noiseRef0", "noiseRef1"], 1, BABYLONCAMERA);
+
+    var noiseTexture0 = new BABYLON.Texture('./textures/grass.png', BABYLONSCENE);
+    var noiseTexture1 = new BABYLON.Texture('./textures/ground.jpg', BABYLONSCENE);
+
+    postEffect.onApply = function (effect) {
+        effect.setVector2("screenSize", new BABYLON.Vector2(postEffect.width, postEffect.height));
+        effect.setFloat('time', time); //this is the problematic line
+        effect.setTexture('noiseRef0', noiseTexture0);
+        effect.setTexture('noiseRef1', noiseTexture1);
+    };
+    //end Thanos effect
+
 } //end init_babylonScene()
 
 // entry point:
@@ -359,42 +657,29 @@ function main(){
         BABYLONFACEOBJ3D.rotation.set(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);//"XYZ" rotation order;
 
         // mouth opening:
-        let mouthOpening = detectState.expressions[0];
+        mouthOpening = detectState.expressions[0];
         mouthOpening = smoothStep(0.35, 0.7, mouthOpening);
         JAWMESH.position.y = -(0.5+0.15+0.01+0.7*mouthOpening*0.5);
 
+        MouthMesh.scaling.y = mouthOpening;
 
 
-
-            da_sphere.position.x = x;
-            da_sphere.position.y = y+SETTINGS.pivotOffsetYZ[0];
-            da_sphere.position.z = -z-SETTINGS.pivotOffsetYZ[1];
-            da_sphere.rotation.set(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);//
-
-
-            //console.log("x "+x+" y "+(y+SETTINGS.pivotOffsetYZ[0])+" z "+(-z-SETTINGS.pivotOffsetYZ[1]));
-
-        //misha add affect on particle system
-        //ParticleFountain
-        //ParticleFountain.position.set(x,y+SETTINGS.pivotOffsetYZ[0],-z-SETTINGS.pivotOffsetYZ[1]);
-        //misha offset fountain vertically
-        //var FountainOffsetZ = 0;
-        //ParticleFountain.position.set(x,3,7);
+        da_sphere.position.x = x;
+        da_sphere.position.y = y+SETTINGS.pivotOffsetYZ[0];
+        da_sphere.position.z = -z-SETTINGS.pivotOffsetYZ[1];
+        da_sphere.rotation.set(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);//
 
 
-        //ParticleFountain.rotation.set(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);//"XYZ" rotation order;
+        sphereDrumpf.position.set(DRUMPF.position.x-.1, DRUMPF.position.y+.15, DRUMPF.position.z);
 
-        //ParticleSystemGlobal.minInitialRotation = detectState.rz;
-        //ParticleSystemGlobal.maxInitialRotation = detectState.rz;
 
-        //var orientation = new BABYLON.Vector3(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);
+        ViralLoad += 1;
 
-        //console.log(orientation);
-
-        //ParticleSystemGlobal.direction1 = orientation;
-
+      } else {
+          if (ViralLoad > 0) {ViralLoad -= 1;}
       }
 
+      text1.text = "VIRAL LOAD: "+ViralLoad;//+Math.round(ViralLoad/ViralUnload * 1000);
       // reinitialize the state of BABYLON.JS because JEEFACEFILTER have changed stuffs:
       BABYLONENGINE.wipeCaches(true);
 
