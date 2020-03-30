@@ -12,7 +12,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [], tVoteLoad = [];
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [], tVoteLoad = [], drumpfStartColor=null;
 let ISDETECTED = false;
 
 
@@ -119,12 +119,7 @@ function init_babylonScene(spec){
 
 
   BABYLONSCENE.clearColor = new BABYLON.Color3( .2, .3, .6);
-  /*
- //camera already made later, and so is the light so turning this off in example code
-  var camera = new BABYLON.ArcRotateCamera("camera1",  0, 0, 0, new BABYLON.Vector3(0, 0, -0), BABYLONSCENE);
-  camera.setPosition(new BABYLON.Vector3(0, 0, 0));
-  camera.attachControl(canvas, true);
-  */
+
   var pl = new BABYLON.PointLight("pl", new BABYLON.Vector3(0, 0, 0), BABYLONSCENE);
   pl.diffuse = new BABYLON.Color3(1, 1, 1);
   pl.specular = new BABYLON.Color3(1, 1, 0.8);
@@ -133,8 +128,6 @@ function init_babylonScene(spec){
   pl.position.y = 0;
   pl.position.z = 0;
   //pl.position = camera.position;
-
-
 
   var sphereRadius = .55;
   var ground = BABYLON.MeshBuilder.CreateGround("gd", {width: 10.0, height: 10.0}, BABYLONSCENE);
@@ -151,13 +144,13 @@ function init_babylonScene(spec){
 
 
   // texture and material
- var url = "textures/Covid19.png";//"http://upload.wikimedia.org/wikipedia/en/8/86/Einstein_tongue.jpg";
+ var url = "textures/Covid19-2.png";//"http://upload.wikimedia.org/wikipedia/en/8/86/Einstein_tongue.jpg";
  var mat = new BABYLON.StandardMaterial("mat1", BABYLONSCENE);
  mat.backFaceCulling = false;
  var texture = new BABYLON.Texture(url, BABYLONSCENE);
  mat.diffuseTexture = texture;
 
- var plane = BABYLON.Mesh.CreatePlane("plane", 0.09, BABYLONSCENE);
+ var plane = BABYLON.Mesh.CreatePlane("plane", 0.15, BABYLONSCENE);
 
   var matSphere = new BABYLON.StandardMaterial("ms", BABYLONSCENE);
   var matGround = new BABYLON.StandardMaterial("mg", BABYLONSCENE);
@@ -183,7 +176,7 @@ function init_babylonScene(spec){
 
 
   // Viral particle system
-  var particleNb = 2000;
+  var particleNb = 1000;
   var SPS = new BABYLON.SolidParticleSystem('SPS', BABYLONSCENE, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true, expandable: true});
   //SPS.billboard = true;
   SPS.addShape(plane, particleNb);
@@ -386,8 +379,8 @@ function init_babylonScene(spec){
     particle.velocity.z = (Math.random() - 0.5) * cone2 * speed2;
 
     particle.rotation.x = Math.PI/2;//Math.random() * Math.PI;
-    particle.rotation.y = Math.random() * Math.PI;
-    particle.rotation.z = Math.random() * Math.PI;
+    particle.rotation.y = -Math.PI;//Math.random() * Math.PI;
+    particle.rotation.z = -Math.PI/2;//Math.random() * Math.PI;
 
     //particle.color.r = 0.0;
     //particle.color.g = 1.0;
@@ -402,6 +395,7 @@ function init_babylonScene(spec){
   sphereDrumpf = BABYLON.Mesh.CreateSphere("sphereDrumpf", 10, .4, BABYLONSCENE);
   sphereDrumpf.getBoundingInfo().boundingSphere.scale(0.4);
   sphereDrumpf.material = matSphereDrumpf;
+
 
 
   // particle behavior
@@ -436,15 +430,34 @@ function init_babylonScene(spec){
         kInterval = 0.2 * VoteLevel/100;
 
         if (DRUMPF != null) {
-          var drumpfMaterial = new BABYLON.StandardMaterial("material", BABYLONSCENE);
-          var drumpfStartColor = new BABYLON.Color3(255/255,165/155,0);
+
+
+          //red
           var drumpfEndColor = new BABYLON.Color3(255/255,0,0);
-          drumpfMaterial.emissiveColor = BABYLON.Color3.Lerp(drumpfStartColor, drumpfEndColor, VoteLevel/100);
-          DRUMPF.material = drumpfMaterial;
-        }
 
-        if (VoteLevel == 20) {
+          //interpolate
+          //drumpfMaterial.emissiveColor = BABYLON.Color3.Lerp(drumpfStartColor, drumpfEndColor, VoteLevel/100);
 
+
+          //AntiDrumpf vote registered initial pulse
+          //Drumpf's vote registration pulse of max vote color animation
+          var votePulse = new BABYLON.Animation("votePulse", "material.diffuseColor", 60, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+          var votePulseKeys = [];
+
+          votePulseKeys.push({
+            frame: 0,
+            value: drumpfEndColor
+          });
+
+          votePulseKeys.push({
+            frame: 15,
+            value: BABYLON.Color3.Lerp(drumpfStartColor, drumpfEndColor, VoteLevel/100)
+          });
+
+          votePulse.setKeys(votePulseKeys);
+
+          DRUMPF.animations.push(votePulse);
+          BABYLONSCENE.beginAnimation(DRUMPF, 0, 120, false);
         }
 
         if (VoteLevel == 100) { DRUMPF.dispose(); }
@@ -467,15 +480,16 @@ function init_babylonScene(spec){
     particle.rotation.x += 0.05 * sign2;
     particle.rotation.y += 0.008 * sign2;
 
-    if (mouthOpening > 0.92 && GLOB_face) {
+    if (mouthOpening > 0.8 && GLOB_face) {
       particle.isVisible = true;
     } else {
       if (GLOB_face) {
         this.recycleParticle(particle);
         particle.isVisible = false;
       }
-
     }
+
+
   };
 
   // init all particle values
@@ -512,6 +526,15 @@ function init_babylonScene(spec){
       //explude Drumpf from the light that makes his color all blown out overexposed
       pl.excludedMeshes.push(newMeshes[0]);
       DRUMPF = newMeshes[0];
+
+      //AntiDrumpf vote registered colors
+      var drumpfMaterial = new BABYLON.StandardMaterial("material", BABYLONSCENE);
+      //yellow-orange
+      drumpfStartColor = new BABYLON.Color3(255/255,165/155,0);
+
+      drumpfMaterial.diffuseColor = drumpfStartColor;
+
+      DRUMPF.material = drumpfMaterial;
 
       //sound
       //voteOutSound.attachToMesh(DRUMPF);
@@ -582,9 +605,9 @@ function init_babylonScene(spec){
     //rectangle.color = "yellow";
 
     rectangle.width = "600px";
-    rectangle.height = "80px";
+    rectangle.height = "100px";
     rectangle.thickness = 0;
-    rectangle.top = "15px";
+    rectangle.top = "-5px";
 
     advancedTexture.addControl(rectangle);
 
@@ -600,7 +623,7 @@ function init_babylonScene(spec){
     text1.fontSize = "50px";
     rectangle.addControl(text1);
 
-  //BABYLONSCENE.debugLayer.show();
+  BABYLONSCENE.debugLayer.show();
 
   // ADD A LIGHT:
   const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 1, 0), BABYLONSCENE);
