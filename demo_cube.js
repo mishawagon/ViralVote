@@ -12,7 +12,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", ViralLoad=0, ViralUnload = 0, MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [];
 let ISDETECTED = false;
 
 
@@ -182,7 +182,7 @@ function init_babylonScene(spec){
 
   // Viral particle system
   var particleNb = 2000;
-  var SPS = new BABYLON.SolidParticleSystem('SPS', BABYLONSCENE, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true});
+  SPS = new BABYLON.SolidParticleSystem('SPS', BABYLONSCENE, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true, expandable: true});
   //SPS.billboard = true;
   SPS.addShape(plane, particleNb);
 
@@ -212,6 +212,8 @@ function init_babylonScene(spec){
   var tmpPos = BABYLON.Vector3.Zero();          // current particle world position
   var tmpNormal = BABYLON.Vector3.Zero();       // current sphere normal on intersection point
   var tmpDot = 0.0;                             // current dot product
+
+  kInterval = 0.01;
 
 
   // position things
@@ -248,6 +250,7 @@ function init_babylonScene(spec){
     //particle.color.a = 1.0;
   };
 
+  var trueViralLoad = [];
 
   // particle behavior
   SPS.updateParticle = function(particle) {
@@ -257,9 +260,10 @@ function init_babylonScene(spec){
       this.recycleParticle(particle);
     }
 
-    // intersection
+    // intersection for viral load
     if (particle.intersectsMesh(sphere) && GLOB_face) {
 
+        if (!trueViralLoad.includes(particle.idx)) { trueViralLoad.push(particle.idx)};
 
         particle.position.addToRef(mesh.position, tmpPos);                  // particle World position
         tmpPos.subtractToRef(sphere.position, tmpNormal);                   // normal to the sphere
@@ -272,8 +276,12 @@ function init_babylonScene(spec){
         particle.velocity.scaleInPlace(restitution);                      // aply restitution
 
     } else {
+      if (trueViralLoad.includes(particle.idx)) {
+        var index = trueViralLoad.indexOf(particle.idx);
+        if (index !== -1) trueViralLoad.splice(index, 1);
+        tViralLoad = trueViralLoad;
+      };
 
-      //ViralUnload += 1;
     }
 
 
@@ -418,8 +426,13 @@ function init_babylonScene(spec){
         particle.velocity.scaleInPlace(restitution2);                      // aply restitution
 
         VoteLevel += 1;
+
+
         //console.log(VoteLevel);
         if (VoteLevel > 100) { VoteLevel = 100; }
+
+        kInterval = 0.2 * VoteLevel/100;
+
         if (DRUMPF != null) {
           var drumpfMaterial = new BABYLON.StandardMaterial("material", BABYLONSCENE);
           var drumpfStartColor = new BABYLON.Color3(255/255,165/155,0);
@@ -428,6 +441,19 @@ function init_babylonScene(spec){
           DRUMPF.material = drumpfMaterial;
         }
 
+        if (VoteLevel == 20) {
+/*
+          SPS.removeParticles(0, 1900);
+          tViralLoad = [];
+          SPS.buildMesh();
+          SPS.setParticles();
+          console.log("!!!!!!!!!!!!!!!!!!!!")
+          console.log("!!!!!!!!!!!!!!!!!!!!")
+          console.log("!!!!!!!!!!!!!!!!!!!!")
+          */
+        }
+
+        if (VoteLevel == 100) { DRUMPF.dispose(); }
 
 
     } else {
@@ -476,14 +502,16 @@ function init_babylonScene(spec){
       newMeshes[0].scaling.y = 3;
       newMeshes[0].scaling.z = 3;
 
-      newMeshes[0].position.x = 1;
+      newMeshes[0].position.x = 0.4;//1;
       newMeshes[0].position.y = -0.40;
-      newMeshes[0].position.z = 4;
+      newMeshes[0].position.z = 1;//4;
 
       newMeshes[0].rotation.x = 330 * (Math.PI/180);
       newMeshes[0].rotation.y = 128 * (Math.PI/180);
       newMeshes[0].rotation.z = 0;
 
+      //explude Drumpf from the light that makes his color all blown out overexposed
+      pl.excludedMeshes.push(newMeshes[0]);
       DRUMPF = newMeshes[0];
 
 
@@ -498,16 +526,23 @@ function init_babylonScene(spec){
 
   // animation
   BABYLONSCENE.registerBeforeRender(function() {
-    //SPS.billboard = true;
+
+    if (DRUMPF != null) {
+      DRUMPF.position.x = 0.4 * Math.sin(k);
+      var rotationBounds = [142, 214]; //best looking rotation angle bounds
+      DRUMPF.rotation.y = ((rotationBounds[0] + (rotationBounds[1] - rotationBounds[0])/2) + ((rotationBounds[1] - rotationBounds[0])/2) * Math.cos(k)) * (Math.PI/180);
+      //142 214
+
+      DRUMPF.rotation.y = (36 * Math.sin(k) * -1 + 178) * (Math.PI/180);
+    }
+
     SPS.setParticles();
 
 
     SPS2.setParticles();
 
-    //sphere.position.x = 0;//20.0 * Math.sin(k);
-    //sphere.position.z = 6;//10.0 * Math.sin(k * 6.0);
-    //sphere.position.y = 0;//5.0 * Math.sin(k * 10) + sphereAltitude;
-    k += 0.01;
+
+    k += kInterval;
 
     //for Thanos effect
     time+=BABYLONSCENE.getAnimationRatio()*rate;
@@ -546,7 +581,7 @@ function init_babylonScene(spec){
     text1.fontSize = "50px";
     rectangle.addControl(text1);
 
-  BABYLONSCENE.debugLayer.show();
+  //BABYLONSCENE.debugLayer.show();
 
   // ADD A LIGHT:
   const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 1, 0), BABYLONSCENE);
@@ -670,16 +705,15 @@ function main(){
         da_sphere.rotation.set(-detectState.rx+SETTINGS.rotationOffsetX, -detectState.ry, detectState.rz);//
 
 
-        sphereDrumpf.position.set(DRUMPF.position.x-.1, DRUMPF.position.y+.15, DRUMPF.position.z);
-
-
-        ViralLoad += 1;
+        if (sphereDrumpf != null) {
+          sphereDrumpf.position.set(DRUMPF.position.x-.1, DRUMPF.position.y+.15, DRUMPF.position.z);
+        }
 
       } else {
-          if (ViralLoad > 0) {ViralLoad -= 1;}
+          //if (ViralLoad > 0) {ViralLoad -= 1;}
       }
 
-      text1.text = "VIRAL LOAD: "+ViralLoad;//+Math.round(ViralLoad/ViralUnload * 1000);
+      text1.text = "VIRAL LOAD: "+tViralLoad.length;//+Math.round(ViralLoad/ViralUnload * 1000);
       // reinitialize the state of BABYLON.JS because JEEFACEFILTER have changed stuffs:
       BABYLONENGINE.wipeCaches(true);
 
