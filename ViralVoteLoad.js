@@ -605,6 +605,7 @@ function init_babylonScene(spec){
   //Line spacing in pixels with pointer enter/out observable
     var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(textBack, 1024, 1024);
 
+    /*
     var rectangle = new BABYLON.GUI.Rectangle("rect");
     rectangle.background = "#005b75";
     //rectangle.color = "yellow";
@@ -615,8 +616,19 @@ function init_babylonScene(spec){
     rectangle.top = "-5px";
 
     advancedTexture.addControl(rectangle);
+    */
+
+    var ViralLoadBarOutline = new BABYLON.GUI.Rectangle("ViralLoadBarOutline");
+    //ViralLoadBarOutline.background = "#0cfadb";
 
 
+    ViralLoadBarOutline.width = "400px";
+    ViralLoadBarOutline.height = "20px";
+    ViralLoadBarOutline.thickness = 4;
+    ViralLoadBarOutline.cornerRadius = 10;
+    ViralLoadBarOutline.color = "grey";//"#005b75";
+
+    advancedTexture.addControl(ViralLoadBarOutline);
 
     //Viral Load lifebar
 
@@ -624,19 +636,30 @@ function init_babylonScene(spec){
     ViralLoadBar.background = "#0cfadb";
 
 
-    ViralLoadBar.width = "580px";
-    ViralLoadBar.height = "60px";
+    ViralLoadBar.width = "400px";
+    ViralLoadBar.height = "20px";
     ViralLoadBar.thickness = 4;
     ViralLoadBar.cornerRadius = 10;
     ViralLoadBar.color = "black";//"#005b75";
-    ViralLoadBar.left = "-580px";
+    //ViralLoadBar.left = "-500px";
     //ViralLoadBar.top = "-5px";
     //ViralLoadBar.horizontalAlignment = 0;
 
     advancedTexture.addControl(ViralLoadBar);
 
 
+    // Adding image
+    var viralIcon = new BABYLON.GUI.Image("viralIcon", "textures/Covid19-2.png");
+    viralIcon.stretch = BABYLON.GUI.Image.STRETCH_UNIFORM;
+    viralIcon.width = "5%";
+    viralIcon.top ="0%";
+    viralIcon.left = "-240px";
 
+    //viralIcon.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    advancedTexture.addControl(viralIcon);
+
+
+    /*
     //Viral Load Text
     text1 = new BABYLON.GUI.TextBlock("text1");
 
@@ -645,14 +668,15 @@ function init_babylonScene(spec){
     text1.lineSpacing = "0px";
 
 
-    text1.text = "Hover in this long text to apply spacing. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.";
+    text1.text = "placeholder stuff";
     text1.color = "white";
     text1.fontSize = "35px";
 
     text1.top = "-13px";
 
-    advancedTexture.addControl(text1);
 
+    advancedTexture.addControl(text1);
+    */
 
   BABYLONSCENE.debugLayer.show();
 
@@ -786,11 +810,12 @@ function main(){
           //if (ViralLoad > 0) {ViralLoad -= 1;}
       }
 
-      text1.text = "VIRAL LOAD: "+tViralLoad.length;//+Math.round(ViralLoad/ViralUnload * 1000);
+
+      //text1.text = "VIRAL LOAD: "+tViralLoad.length;//+Math.round(ViralLoad/ViralUnload * 1000);
       var maxViralLoad = 200; //Stay under the max to survive
       var truncatedViralLoad = tViralLoad.length > maxViralLoad ? maxViralLoad : tViralLoad.length;
 
-      ViralLoadBar.left = mapRange([0,maxViralLoad],[-580,0],truncatedViralLoad) + "px";
+      ViralLoadBar.width = mapRange([0,maxViralLoad],[0, 400],truncatedViralLoad) + "px";
       // reinitialize the state of BABYLON.JS because JEEFACEFILTER have changed stuffs:
       BABYLONENGINE.wipeCaches(true);
 
