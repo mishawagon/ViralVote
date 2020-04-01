@@ -17,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [], tVoteLoad = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarStartColor = null, ViralLoadBarOutline = null;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameLevel = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null;
 let ISDETECTED = false;
 
 
@@ -250,8 +250,6 @@ function init_babylonScene(spec){
     //particle.color.a = 1.0;
   };
 
-  var trueViralLoad = [];
-
   // particle behavior
   SPS.updateParticle = function(particle) {
 
@@ -279,7 +277,6 @@ function init_babylonScene(spec){
       if (trueViralLoad.includes(particle.idx)) {
         var index = trueViralLoad.indexOf(particle.idx);
         if (index !== -1) trueViralLoad.splice(index, 1);
-        tViralLoad = trueViralLoad;
       };
 
     }
@@ -414,7 +411,7 @@ function init_babylonScene(spec){
     // intersection
     if (particle.intersectsMesh(sphereDrumpf)) {
 
-        if (!tVoteLoad.includes(particle.idx)) { tVoteLoad.push(particle.idx)};
+        if (!VotesLanded.includes(particle.idx)) { VotesLanded.push(particle.idx)};
 
         particle.position.addToRef(mesh2.position, tmpPos2);                  // particle World position
         tmpPos2.subtractToRef(sphere.position, tmpNormal2);                   // normal to the sphere
@@ -426,13 +423,13 @@ function init_babylonScene(spec){
         particle.velocity.z = -particle.velocity.z + 2.0 * tmpDot2 * tmpNormal2.z;
         particle.velocity.scaleInPlace(restitution2);                      // aply restitution
 
-        VoteLevel += 1;
+        VoteLoad += 1;
 
 
-        //console.log(VoteLevel);
-        if (VoteLevel > 100) { VoteLevel = 100; }
+        //console.log(VoteLoad);
+        if (VoteLoad > 100) { VoteLoad = 100; }
 
-        kInterval = 0.2 * VoteLevel/100;
+        kInterval = 0.2 * VoteLoad/100;
 
         if (DRUMPF != null) {
 
@@ -441,7 +438,7 @@ function init_babylonScene(spec){
           var drumpfEndColor = new BABYLON.Color3(255/255,0,0);
 
           //interpolate
-          //drumpfMaterial.emissiveColor = BABYLON.Color3.Lerp(drumpfStartColor, drumpfEndColor, VoteLevel/100);
+          //drumpfMaterial.emissiveColor = BABYLON.Color3.Lerp(drumpfStartColor, drumpfEndColor, VoteLoad/100);
 
 
           //AntiDrumpf vote registered initial pulse
@@ -456,7 +453,7 @@ function init_babylonScene(spec){
 
           votePulseKeys.push({
             frame: 15,
-            value: BABYLON.Color3.Lerp(drumpfStartColor, drumpfEndColor, VoteLevel/100)
+            value: BABYLON.Color3.Lerp(drumpfStartColor, drumpfEndColor, VoteLoad/100)
           });
 
           votePulse.setKeys(votePulseKeys);
@@ -465,14 +462,14 @@ function init_babylonScene(spec){
           BABYLONSCENE.beginAnimation(DRUMPF, 0, 120, false);
         }
 
-        if (VoteLevel == 100) { DRUMPF.dispose(); }
+        if (VoteLoad == 100) { DRUMPF.dispose(); }
 
 
     } else {
 
-      if (tVoteLoad.includes(particle.idx)) {
-        var index = tVoteLoad.indexOf(particle.idx);
-        if (index !== -1) tVoteLoad.splice(index, 1);
+      if (VotesLanded.includes(particle.idx)) {
+        var index = VotesLanded.indexOf(particle.idx);
+        if (index !== -1) VotesLanded.splice(index, 1);
       };
     }
 
@@ -567,7 +564,7 @@ function init_babylonScene(spec){
 
       DRUMPF.rotation.y = (36 * Math.sin(k) * -1 + 178) * (Math.PI/180);
 
-      if (tVoteLoad.length > 0) {
+      if (VotesLanded.length > 0) {
         DRUMPF.scaling.x = 2.5+0.5*Math.random();
         DRUMPF.scaling.y = 2.5+0.5*Math.random();
         DRUMPF.scaling.z = 2.5+0.5*Math.random();
@@ -603,7 +600,7 @@ function init_babylonScene(spec){
   textBack.rotation.x = 270 * (Math.PI/180); textBack.rotation.y = 180 * (Math.PI/180); textBack.rotation.z = 0;
 
   //Line spacing in pixels with pointer enter/out observable
-    var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(textBack, 1024, 1024);
+  advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(textBack, 1024, 1024);
 
     /*
     var rectangle = new BABYLON.GUI.Rectangle("rect");
@@ -619,15 +616,15 @@ function init_babylonScene(spec){
     */
 
     ViralLoadBarOutline = new BABYLON.GUI.Rectangle("ViralLoadBarOutline");
-    //ViralLoadBarOutline.background = "#0cfadb";
-
-
     ViralLoadBarOutline.width = "400px";
     ViralLoadBarOutline.height = "20px";
     ViralLoadBarOutline.thickness = 4;
     ViralLoadBarOutline.cornerRadius = 10;
-    ViralLoadBarOutline.color = "grey";//"#005b75";
+    ViralLoadBarOutline.color = "#cccccc";//"#005b75";
     ViralLoadBarOutline.top = "7px";
+
+    ViralLoadBarOutlineStartColor = BABYLON.Color3.FromHexString(ViralLoadBarOutline.color);
+
 
     advancedTexture.addControl(ViralLoadBarOutline);
 
@@ -636,7 +633,7 @@ function init_babylonScene(spec){
     ViralLoadBar = new BABYLON.GUI.Rectangle("ViralLoadBar");
     ViralLoadBar.background = "#0cfadb";
 
-    ViralLoadBarStartColor = BABYLON.Color3.FromHexString(ViralLoadBar.background);
+    var ViralLoadBarStartColor = BABYLON.Color3.FromHexString(ViralLoadBar.background);
 
     ViralLoadBar.width = "400px";
     ViralLoadBar.height = "20px";
@@ -679,6 +676,15 @@ function init_babylonScene(spec){
 
     advancedTexture.addControl(text1);
     */
+
+
+
+    console.log("!!!!!!!!!!!!!!!")
+    console.log("!!!!!!!!!!!!!!!")
+    console.log("!!!!!!!!!!!!!!!")
+    console.log("!!!!!!!!!!!!!!!")
+
+    CreateVoteLoadBar();
 
   BABYLONSCENE.debugLayer.show();
 
@@ -809,23 +815,44 @@ function main(){
         }
 
       } else {
-          //if (ViralLoad > 0) {ViralLoad -= 1;}
       }
 
-
-      //text1.text = "VIRAL LOAD: "+tViralLoad.length;//+Math.round(ViralLoad/ViralUnload * 1000);
       var maxViralLoad = 200; //Stay under the max to survive
-      var truncatedViralLoad = tViralLoad.length > maxViralLoad ? maxViralLoad : tViralLoad.length;
+      var truncatedViralLoad = trueViralLoad.length > maxViralLoad ? maxViralLoad : trueViralLoad.length;
 
       if (ViralLoadBar != null && ViralLoadBarOutline != null) {
 
-
-        var ViralLoadEndColor = BABYLON.Color3.FromHexString("#ea090b");
-        ViralLoadBar.background = BABYLON.Color3.Lerp(ViralLoadBarStartColor, ViralLoadEndColor, truncatedViralLoad/maxViralLoad).toHexString();
+        var ViralLoadOutlineEndColor = BABYLON.Color3.FromHexString("#ea090b");
+        ViralLoadBarOutline.color = BABYLON.Color3.Lerp(ViralLoadBarOutlineStartColor, ViralLoadOutlineEndColor, truncatedViralLoad/maxViralLoad).toHexString();
 
         ViralLoadBar.width = mapRange([0,maxViralLoad],[0, 400],truncatedViralLoad) + "px";
 
         ViralLoadBar.left = -1*(parseInt(ViralLoadBarOutline.width) - parseInt(ViralLoadBar.width))/2;
+      }
+
+      var maxVoteLoad = 100;
+      var truncatedVoteLoad = VoteLoad > maxVoteLoad ? maxVoteLoad : VoteLoad;
+
+      if (VoteLoadBar != null && VoteLoadBarOutline != null) {
+
+        var VoteLoadOutlineEndColor = BABYLON.Color3.FromHexString("#5069dd");
+        VoteLoadBarOutline.color = BABYLON.Color3.Lerp(VoteLoadBarOutlineStartColor, VoteLoadOutlineEndColor, truncatedVoteLoad/maxVoteLoad).toHexString();
+
+        //Why is the minimum range 10? Because for some reason VoteLoad starts off at 10, maybe due to instant collisions with DRUMPF on creation? Instead of looking into it I'm just gonna assume 10 is the minimum
+        VoteLoadBar.width = mapRange([10,maxVoteLoad],[0, 400],truncatedVoteLoad) + "px";
+
+        VoteLoadBar.left = -1*(parseInt(VoteLoadBarOutline.width) - parseInt(VoteLoadBar.width))/2;
+      }
+
+      if (trueViralLoad.length == maxViralLoad) {
+
+        switch(GameLevel) {
+          case 0:
+            //CreateVoteLoadBar();
+            break;
+          default:
+            //stuff;
+        }
       }
 
       // reinitialize the state of BABYLON.JS because JEEFACEFILTER have changed stuffs:
@@ -838,3 +865,49 @@ function main(){
     } //end callbackTrack()
   }); //end JEEFACEFILTERAPI.init call
 } //end main()
+
+
+function CreateVoteLoadBar() {
+
+  VoteLoadBarOutline = new BABYLON.GUI.Rectangle("VoteLoadBarOutline");
+  VoteLoadBarOutline.width = "400px";
+  VoteLoadBarOutline.height = "20px";
+  VoteLoadBarOutline.thickness = 4;
+  VoteLoadBarOutline.cornerRadius = 10;
+  VoteLoadBarOutline.color = "#cccccc";//"#005b75";
+  VoteLoadBarOutline.top = "40px";
+
+  VoteLoadBarOutlineStartColor = BABYLON.Color3.FromHexString(VoteLoadBarOutline.color);
+
+  advancedTexture.addControl(VoteLoadBarOutline);
+
+  //Viral Load lifebar
+
+  VoteLoadBar = new BABYLON.GUI.Rectangle("VoteLoadBar");
+  VoteLoadBar.background = "#fc01b2";
+
+  var VoteLoadBarStartColor = BABYLON.Color3.FromHexString(VoteLoadBar.background);
+
+  VoteLoadBar.width = "400px";
+  VoteLoadBar.height = "20px";
+  VoteLoadBar.thickness = 4;
+  VoteLoadBar.cornerRadius = 10;
+  VoteLoadBar.color = "black";//"#005b75";
+  //ViralLoadBar.left = "-500px";
+  VoteLoadBar.top = "40px";
+  //ViralLoadBar.horizontalAlignment = 0;
+
+  advancedTexture.addControl(VoteLoadBar);
+
+
+  // Adding image
+  var voteIcon = new BABYLON.GUI.Image("viralIcon", "textures/voteVirus.png");
+  voteIcon.stretch = BABYLON.GUI.Image.STRETCH_UNIFORM;
+  voteIcon.width = "5%";
+  voteIcon.top ="40px";
+  voteIcon.left = "-200px";
+
+  //viralIcon.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+  advancedTexture.addControl(voteIcon);
+
+}
