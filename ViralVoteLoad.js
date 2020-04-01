@@ -17,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [], tVoteLoad = [], drumpfStartColor=null, ViralLoadBar = null;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLevel = 0, kInterval = 0, tViralLoad = [], tVoteLoad = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarStartColor = null, ViralLoadBarOutline = null;
 let ISDETECTED = false;
 
 
@@ -618,7 +618,7 @@ function init_babylonScene(spec){
     advancedTexture.addControl(rectangle);
     */
 
-    var ViralLoadBarOutline = new BABYLON.GUI.Rectangle("ViralLoadBarOutline");
+    ViralLoadBarOutline = new BABYLON.GUI.Rectangle("ViralLoadBarOutline");
     //ViralLoadBarOutline.background = "#0cfadb";
 
 
@@ -627,6 +627,7 @@ function init_babylonScene(spec){
     ViralLoadBarOutline.thickness = 4;
     ViralLoadBarOutline.cornerRadius = 10;
     ViralLoadBarOutline.color = "grey";//"#005b75";
+    ViralLoadBarOutline.top = "7px";
 
     advancedTexture.addControl(ViralLoadBarOutline);
 
@@ -635,6 +636,7 @@ function init_babylonScene(spec){
     ViralLoadBar = new BABYLON.GUI.Rectangle("ViralLoadBar");
     ViralLoadBar.background = "#0cfadb";
 
+    ViralLoadBarStartColor = BABYLON.Color3.FromHexString(ViralLoadBar.background);
 
     ViralLoadBar.width = "400px";
     ViralLoadBar.height = "20px";
@@ -642,7 +644,7 @@ function init_babylonScene(spec){
     ViralLoadBar.cornerRadius = 10;
     ViralLoadBar.color = "black";//"#005b75";
     //ViralLoadBar.left = "-500px";
-    //ViralLoadBar.top = "-5px";
+    ViralLoadBar.top = "7px";
     //ViralLoadBar.horizontalAlignment = 0;
 
     advancedTexture.addControl(ViralLoadBar);
@@ -652,8 +654,8 @@ function init_babylonScene(spec){
     var viralIcon = new BABYLON.GUI.Image("viralIcon", "textures/Covid19-2.png");
     viralIcon.stretch = BABYLON.GUI.Image.STRETCH_UNIFORM;
     viralIcon.width = "5%";
-    viralIcon.top ="0%";
-    viralIcon.left = "-240px";
+    viralIcon.top ="5px";
+    viralIcon.left = "-200px";
 
     //viralIcon.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
     advancedTexture.addControl(viralIcon);
@@ -815,7 +817,17 @@ function main(){
       var maxViralLoad = 200; //Stay under the max to survive
       var truncatedViralLoad = tViralLoad.length > maxViralLoad ? maxViralLoad : tViralLoad.length;
 
-      ViralLoadBar.width = mapRange([0,maxViralLoad],[0, 400],truncatedViralLoad) + "px";
+      if (ViralLoadBar != null && ViralLoadBarOutline != null) {
+
+
+        var ViralLoadEndColor = BABYLON.Color3.FromHexString("#ea090b");
+        ViralLoadBar.background = BABYLON.Color3.Lerp(ViralLoadBarStartColor, ViralLoadEndColor, truncatedViralLoad/maxViralLoad).toHexString();
+
+        ViralLoadBar.width = mapRange([0,maxViralLoad],[0, 400],truncatedViralLoad) + "px";
+
+        ViralLoadBar.left = -1*(parseInt(ViralLoadBarOutline.width) - parseInt(ViralLoadBar.width))/2;
+      }
+
       // reinitialize the state of BABYLON.JS because JEEFACEFILTER have changed stuffs:
       BABYLONENGINE.wipeCaches(true);
 
