@@ -606,7 +606,7 @@ function init_babylonScene(spec){
         rectangle.width = "600px";
         rectangle.height = "100px";
         rectangle.thickness = 0;
-        rectangle.top = "-5px";
+        //rectangle.top = "250px";
 
         advancedTexture.addControl(rectangle);
 
@@ -620,15 +620,15 @@ function init_babylonScene(spec){
 
 
         text1.text = "Please try again!";
-        text1.color = "white";
+        text1.color = "#0cfadb";
         text1.fontSize = "35px";
 
-        text1.top = "-13px";
+        //text1.top = "-13px";
 
 
         advancedTexture.addControl(text1);
 
-
+        textBack.renderingGroupId = 1;
 
 
 
