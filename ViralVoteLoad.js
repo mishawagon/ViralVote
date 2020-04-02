@@ -17,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 100;
 let ISDETECTED = false;
 
 
@@ -427,9 +427,9 @@ function init_babylonScene(spec){
 
 
         //console.log(VoteLoad);
-        if (VoteLoad > 100) { VoteLoad = 100; }
+        if (VoteLoad > maxVoteLoad) { VoteLoad = maxVoteLoad; }
 
-        kInterval = 0.2 * VoteLoad/100;
+        kInterval = 0.2 * VoteLoad/maxVoteLoad;
 
         if (DRUMPF != null) {
 
@@ -462,7 +462,7 @@ function init_babylonScene(spec){
           BABYLONSCENE.beginAnimation(DRUMPF, 0, 120, false);
         }
 
-        if (VoteLoad == 100) { DRUMPF.dispose(); }
+        if (VoteLoad == maxVoteLoad) { DRUMPF.dispose(); }
 
 
     } else {
@@ -599,6 +599,7 @@ function init_babylonScene(spec){
           DRUMPF.position.x -= .29;
         }
 
+        /*
         var rectangle = new BABYLON.GUI.Rectangle("rect");
         rectangle.background = "#005b75";
         //rectangle.color = "yellow";
@@ -624,9 +625,34 @@ function init_babylonScene(spec){
         text1.fontSize = "35px";
 
         //text1.top = "-13px";
+        */
+
+        //advancedTexture.addControl(text1);
+        advancedTexture.dispose();
+        var gui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("myUI");
 
 
-        advancedTexture.addControl(text1);
+        var button = BABYLON.GUI.Button.CreateImageWithCenterTextButton("button", "", "textures/tryagain.png");
+        button.top = "0px";
+        button.left = "0px";
+        button.width = "300px";
+        button.height = "100px";
+        button.cornerRadius = 20;
+        button.thickness = 4;
+        button.children[0].color = "#0cfadb";
+        button.children[0].fontSize = 50;
+        button.children[0].fontFamily = 'vag_roundedregular';
+        //button.children[0].top = '-20px';
+
+      //button.children[0].rotation.x = 270 * (Math.PI/180); button.children[0].rotation.y = 180 * (Math.PI/180); button.children[0].rotation.z = 0;
+        button.color = "#FF7979";
+        button.background = "#EB4D4B";
+
+        button.onPointerClickObservable.add(function () {
+            location.reload();
+        });
+
+        gui.addControl(button);
 
         textBack.renderingGroupId = 1;
 
@@ -841,7 +867,7 @@ function main(){
       } else {
       }
 
-      var maxViralLoad = 50; //Stay under the max to survive
+      var maxViralLoad = 200; //Stay under the max to survive
       var truncatedViralLoad = trueViralLoad.length > maxViralLoad ? maxViralLoad : trueViralLoad.length;
 
       if (ViralLoadBar != null && ViralLoadBarOutline != null) {
@@ -854,7 +880,7 @@ function main(){
         ViralLoadBar.left = -1*(parseInt(ViralLoadBarOutline.width) - parseInt(ViralLoadBar.width))/2;
       }
 
-      var maxVoteLoad = 100;
+      maxVoteLoad = 50;
       var truncatedVoteLoad = VoteLoad > maxVoteLoad ? maxVoteLoad : VoteLoad;
 
       if (VoteLoadBar != null && VoteLoadBarOutline != null) {
