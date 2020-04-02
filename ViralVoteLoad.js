@@ -17,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 100;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 50;
 let ISDETECTED = false;
 
 
@@ -867,7 +867,7 @@ function main(){
       } else {
       }
 
-      var maxViralLoad = 200; //Stay under the max to survive
+      var maxViralLoad = 100; //Stay under the max to survive
       var truncatedViralLoad = trueViralLoad.length > maxViralLoad ? maxViralLoad : trueViralLoad.length;
 
       if (ViralLoadBar != null && ViralLoadBarOutline != null) {
@@ -880,7 +880,7 @@ function main(){
         ViralLoadBar.left = -1*(parseInt(ViralLoadBarOutline.width) - parseInt(ViralLoadBar.width))/2;
       }
 
-      maxVoteLoad = 50;
+
       var truncatedVoteLoad = VoteLoad > maxVoteLoad ? maxVoteLoad : VoteLoad;
 
       if (VoteLoadBar != null && VoteLoadBarOutline != null) {
