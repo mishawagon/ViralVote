@@ -414,7 +414,7 @@ function init_babylonScene(spec){
         if (!VotesLanded.includes(particle.idx)) { VotesLanded.push(particle.idx)};
 
         particle.position.addToRef(mesh2.position, tmpPos2);                  // particle World position
-        tmpPos2.subtractToRef(sphere.position, tmpNormal2);                   // normal to the sphere
+        tmpPos2.subtractToRef(sphereDrumpf.position, tmpNormal2);                   // normal to the sphere
         tmpNormal2.normalize();                                              // normalize the sphere normal
         tmpDot2 = BABYLON.Vector3.Dot(particle.velocity, tmpNormal2);            // dot product (velocity, normal)
         // bounce result computation
@@ -835,7 +835,7 @@ function main(){
 
       if (VoteLoadBar != null && VoteLoadBarOutline != null) {
 
-        var VoteLoadOutlineEndColor = BABYLON.Color3.FromHexString("#5069dd");
+        var VoteLoadOutlineEndColor = BABYLON.Color3.FromHexString("#32CD32");
         VoteLoadBarOutline.color = BABYLON.Color3.Lerp(VoteLoadBarOutlineStartColor, VoteLoadOutlineEndColor, truncatedVoteLoad/maxVoteLoad).toHexString();
 
         //Why is the minimum range 10? Because for some reason VoteLoad starts off at 10, maybe due to instant collisions with DRUMPF on creation? Instead of looking into it I'm just gonna assume 10 is the minimum
