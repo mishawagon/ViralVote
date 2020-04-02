@@ -17,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameLevel = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null;
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null;
 let ISDETECTED = false;
 
 
@@ -553,10 +553,11 @@ function init_babylonScene(spec){
   var time = 0;
   var rate = 0;//0.01;
 
-  // animation of Drumpf's head
+
   BABYLONSCENE.registerBeforeRender(function() {
 
-    if (DRUMPF != null) { //Animate drupmf's head
+    // animation of Drumpf's head which escalates as more votes land (like a boss)
+    if (DRUMPF != null && GameState != "lost") { //Animate drupmf's head
       DRUMPF.position.x = 0.4 * Math.sin(k);
       var rotationBounds = [142, 214]; //best looking rotation angle bounds
       DRUMPF.rotation.y = ((rotationBounds[0] + (rotationBounds[1] - rotationBounds[0])/2) + ((rotationBounds[1] - rotationBounds[0])/2) * Math.cos(k)) * (Math.PI/180);
@@ -575,10 +576,71 @@ function init_babylonScene(spec){
 
     }
 
-    SPS.setParticles();
+    if (DRUMPF != null && GameState == "lost") {
+      GameState = "restart";
+      if (SPS != null) SPS.dispose();
+      SPS = null;
+
+      if (SPS2 != null) SPS2.dispose();
+      SPS2 = null;
+      //DRUMPF multiplies!
+      if (DrumpfMultiplies == null) {
+        DrumpfMultiplies = true;
+
+        //DRUMPF.position.z = 2;
+        DRUMPF.position.x = .3;
+
+        for (var ii = 0; ii < 5; ii++) {
+          for (var i = 0; i < 4; i++) {
+            var newInstance = DRUMPF.createInstance("i"+i);
+            newInstance.position.y = DRUMPF.position.y + i/3.1;
+          }
+
+          DRUMPF.position.x -= .29;
+        }
+
+        var rectangle = new BABYLON.GUI.Rectangle("rect");
+        rectangle.background = "#005b75";
+        //rectangle.color = "yellow";
+
+        rectangle.width = "600px";
+        rectangle.height = "100px";
+        rectangle.thickness = 0;
+        rectangle.top = "-5px";
+
+        advancedTexture.addControl(rectangle);
 
 
-    SPS2.setParticles();
+        //Viral Load Text
+        text1 = new BABYLON.GUI.TextBlock("text1");
+
+        text1.fontFamily = 'vag_roundedregular';
+        text1.textWrapping = true;
+        text1.lineSpacing = "0px";
+
+
+        text1.text = "Please try again!";
+        text1.color = "white";
+        text1.fontSize = "35px";
+
+        text1.top = "-13px";
+
+
+        advancedTexture.addControl(text1);
+
+
+
+
+
+      }
+
+    }
+
+
+    if (SPS != null) SPS.setParticles();
+
+
+    if (SPS2 != null) SPS2.setParticles();
 
 
     k += kInterval;
@@ -602,18 +664,7 @@ function init_babylonScene(spec){
   //Line spacing in pixels with pointer enter/out observable
   advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(textBack, 1024, 1024);
 
-    /*
-    var rectangle = new BABYLON.GUI.Rectangle("rect");
-    rectangle.background = "#005b75";
-    //rectangle.color = "yellow";
 
-    rectangle.width = "600px";
-    rectangle.height = "60px";
-    rectangle.thickness = 0;
-    rectangle.top = "-5px";
-
-    advancedTexture.addControl(rectangle);
-    */
 
     ViralLoadBarOutline = new BABYLON.GUI.Rectangle("ViralLoadBarOutline");
     ViralLoadBarOutline.width = "400px";
@@ -639,7 +690,7 @@ function init_babylonScene(spec){
     ViralLoadBar.height = "20px";
     ViralLoadBar.thickness = 4;
     ViralLoadBar.cornerRadius = 10;
-    ViralLoadBar.color = "black";//"#005b75";
+    ViralLoadBar.color = "#271101";//"#005b75";
     //ViralLoadBar.left = "-500px";
     ViralLoadBar.top = "7px";
     //ViralLoadBar.horizontalAlignment = 0;
@@ -656,33 +707,6 @@ function init_babylonScene(spec){
 
     //viralIcon.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
     advancedTexture.addControl(viralIcon);
-
-
-    /*
-    //Viral Load Text
-    text1 = new BABYLON.GUI.TextBlock("text1");
-
-    text1.fontFamily = 'vag_roundedregular';
-    text1.textWrapping = true;
-    text1.lineSpacing = "0px";
-
-
-    text1.text = "placeholder stuff";
-    text1.color = "white";
-    text1.fontSize = "35px";
-
-    text1.top = "-13px";
-
-
-    advancedTexture.addControl(text1);
-    */
-
-
-
-    console.log("!!!!!!!!!!!!!!!")
-    console.log("!!!!!!!!!!!!!!!")
-    console.log("!!!!!!!!!!!!!!!")
-    console.log("!!!!!!!!!!!!!!!")
 
     CreateVoteLoadBar();
 
@@ -817,7 +841,7 @@ function main(){
       } else {
       }
 
-      var maxViralLoad = 200; //Stay under the max to survive
+      var maxViralLoad = 50; //Stay under the max to survive
       var truncatedViralLoad = trueViralLoad.length > maxViralLoad ? maxViralLoad : trueViralLoad.length;
 
       if (ViralLoadBar != null && ViralLoadBarOutline != null) {
@@ -844,22 +868,17 @@ function main(){
         VoteLoadBar.left = -1*(parseInt(VoteLoadBarOutline.width) - parseInt(VoteLoadBar.width))/2;
       }
 
-      if (trueViralLoad.length == maxViralLoad) {
+      if (trueViralLoad.length >= maxViralLoad && GameState != "lost") {
 
-        switch(GameLevel) {
-          case 0:
-            //CreateVoteLoadBar();
-            break;
-          default:
-            //stuff;
-        }
+        GameState = "lost";
+
       }
 
       // reinitialize the state of BABYLON.JS because JEEFACEFILTER have changed stuffs:
       BABYLONENGINE.wipeCaches(true);
 
       // trigger the render of the BABYLON.JS SCENE:
-      BABYLONSCENE.render();
+      if (GameState != "restart") BABYLONSCENE.render();
 
       BABYLONENGINE.wipeCaches();
     } //end callbackTrack()
@@ -892,7 +911,7 @@ function CreateVoteLoadBar() {
   VoteLoadBar.height = "20px";
   VoteLoadBar.thickness = 4;
   VoteLoadBar.cornerRadius = 10;
-  VoteLoadBar.color = "black";//"#005b75";
+  VoteLoadBar.color = "#271101";//"#005b75";
   //ViralLoadBar.left = "-500px";
   VoteLoadBar.top = "40px";
   //ViralLoadBar.horizontalAlignment = 0;
