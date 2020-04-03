@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-language" content="en-EN" />
+
+    <title>Viral Vote Load</title>
+
+    <script>
+      var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+
+      // Safari 3.0+ "[object HTMLElementConstructor]"
+      var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+
+
+      if (iOS && !isSafari) alert("Safari only for iOS devices please, due to Apple's business issues.")
+    </script>
+  </head>
+
+  <body onload="main()" style='color: white'>
+
+
+  </body>
+</html>
