@@ -17,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 20, DRUMPFVoteLoadAnimationThreshold = 10; //above 10
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 40, DRUMPFVoteLoadAnimationThreshold = 10; //above 10
 let ISDETECTED = false, textBack = null;
 
 
@@ -822,7 +822,7 @@ function main(){
     NNCpath: '../../../dist/', // root of NNC.json file
     callbackReady: function(errCode, spec){
       if (errCode){
-        console.log('AN ERROR HAPPENS. SORRY BRO :( . ERR =', errCode);
+        console.log('AN ERROR HAPPENS. SORRY :( . ERR =', errCode);
         return;
       }
 
@@ -961,7 +961,7 @@ function CreateVoteLoadBar() {
 
 
   // Adding image
-  var voteIcon = new BABYLON.GUI.Image("viralIcon", "textures/viralVote2.png");
+  var voteIcon = new BABYLON.GUI.Image("viralIcon", "textures/viralVote.png");
   voteIcon.stretch = BABYLON.GUI.Image.STRETCH_UNIFORM;
   voteIcon.width = "5%";
   voteIcon.top ="40px";
@@ -1011,7 +1011,7 @@ var ShowRestartGUI = function() {
 
             var buttext = GameState == "won-restart" ? "textures/winagain.png" : "textures/tryagain.png";
             var button = BABYLON.GUI.Button.CreateImageWithCenterTextButton("button", "", buttext);
-            button.top = GameState == "won-restart" ? "320px" : "0px";
+            button.top = GameState == "won-restart" ? "380px" : "0px";
             GameState = "stop";
             button.left = "0px";
             button.width = "300px";
