@@ -350,7 +350,7 @@ function init_babylonScene(spec){
   // shared variables
   var speed2 = .2;                  // particle max speed
   var cone2 = 0.4;                   // emitter aperture
-  var gravity2 = -speed / 400;       // gravity
+  var gravity2 = 0.01;//-speed / 400;       // gravity
   var restitution2 = 0;           // energy restitution
   var k2 = 0.0;
   var sign2 = 1;
@@ -473,35 +473,6 @@ function init_babylonScene(spec){
 
 
           ShowRestartGUI();
-
-          /*
-          var DrumpfDiminishesX = new BABYLON.Animation("DrumpfDiminishes", "scaling.x", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-          var DrumpfDiminishesY = new BABYLON.Animation("DrumpfDiminishes", "scaling.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-          var DrumpfDiminishesZ = new BABYLON.Animation("DrumpfDiminishes", "scaling.z", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-
-          var DrumpfDiminishesKeys = [];
-
-          DrumpfDiminishesKeys.push({
-            frame: 0,
-            value: 1
-          });
-
-          DrumpfDiminishesKeys.push({
-            frame: 10000,
-            value: 0
-          });
-
-          DrumpfDiminishesX.setKeys(DrumpfDiminishesKeys);
-          DrumpfDiminishesY.setKeys(DrumpfDiminishesKeys);
-          DrumpfDiminishesZ.setKeys(DrumpfDiminishesKeys);
-
-          DRUMPF.animations.push(DrumpfDiminishesX);DRUMPF.animations.push(DrumpfDiminishesY);DRUMPF.animations.push(DrumpfDiminishesZ);
-
-          var itStopped = function() {
-            DRUMPF.dispose();
-          }
-          BABYLONSCENE.beginAnimation(DRUMPF, 0, 120, false, 1, itStopped);
-          */
         }
 
 
