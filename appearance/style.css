@@ -1,7 +1,7 @@
 a {color: #eee; text-decoration: none}
 a:hover {color: blue;}
 body {overflow: auto; overflow-y: auto;
-  background-color: #271101;
+  background-color: #111111;
   background-image: url('../textures/Covid19-2.png');
   background-attachment: fixed;
   background-position: center;
