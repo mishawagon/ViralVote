@@ -577,7 +577,7 @@ function init_babylonScene(spec){
     }
 
     if (DRUMPF != null && GameState == "lost") {
-      GameState = "restart";
+      GameState = "animatingEnd";
       if (SPS != null) SPS.dispose();
       SPS = null;
 
@@ -587,17 +587,34 @@ function init_babylonScene(spec){
       if (DrumpfMultiplies == null) {
         DrumpfMultiplies = true;
 
-        //DRUMPF.position.z = 2;
-        DRUMPF.position.x = .3;
 
-        for (var ii = 0; ii < 5; ii++) {
-          for (var i = 0; i < 4; i++) {
-            var newInstance = DRUMPF.createInstance("i"+i);
-            newInstance.position.y = DRUMPF.position.y + i/3.1;
-          }
+        if (GameState == "animatingEnd") {
+          var i= 0;
+          var ii = 0;
+          DRUMPF.position.x = .3;
+          var SpawnDrumpfsInterval = setInterval(function(){
 
-          DRUMPF.position.x -= .29;
+            if (ii < 3) {
+              if (i < 3) {
+                var newInstance = DRUMPF.createInstance("i"+i);
+                newInstance.position.y = DRUMPF.position.y + i/3.1;
+                i+=1;
+              }
+              if (i == 3) {
+                ii+=1;
+                i = 0;
+                DRUMPF.position.x -= .29;
+              }
+            }
+            if (ii == 6) {
+              clearInterval(SpawnDrumpfsInterval);
+              GameState = "animatedEnd";
+            }
+          }, 100)
+
         }
+
+
 
         /*
         var rectangle = new BABYLON.GUI.Rectangle("rect");
@@ -867,7 +884,7 @@ function main(){
       } else {
       }
 
-      var maxViralLoad = 100; //Stay under the max to survive
+      var maxViralLoad = 50; //Stay under the max to survive
       var truncatedViralLoad = trueViralLoad.length > maxViralLoad ? maxViralLoad : trueViralLoad.length;
 
       if (ViralLoadBar != null && ViralLoadBarOutline != null) {
@@ -904,7 +921,7 @@ function main(){
       BABYLONENGINE.wipeCaches(true);
 
       // trigger the render of the BABYLON.JS SCENE:
-      if (GameState != "restart") BABYLONSCENE.render();
+      if (GameState != "animatingEnd") BABYLONSCENE.render();
 
       BABYLONENGINE.wipeCaches();
     } //end callbackTrack()
