@@ -8,8 +8,7 @@ To run locally, I'm using the below command with some quick and dirty SSL certif
 http-server -S -key cert.pem
 ```
 
-![Image of Viral Vote](http://caitlinandmisha.com/viralvote/textures/viralVote.png) ![Image of Viral Vote](http://caitlinandmisha.com/viralvote/textures/viralVote.png) ![Image of Viral Vote](http://caitlinandmisha.com/viralvote/textures/viralVote.png)
-
+![Image of Viral Vote](http://caitlinandmisha.com/viralvote/textures/viralVote.png) 
 
 
 ## References
