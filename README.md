@@ -1,5 +1,7 @@
 # AR game for the browser that plays with the issues surrounding voting during the pandemic
 
+## Avoid viral accumulation on your face as you spew votes at the political head by opening your mouth
+
 ![Image of Viral Vote Virus](http://caitlinandmisha.com/viralvote/textures/Covid19-2.png)
 
 ## SSL (https) is required to use the camera (for the AR aspect).
