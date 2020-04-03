@@ -4,7 +4,7 @@
 
 SSL (https) is required to use the camera (for the AR aspect).
 
-![Image of Viral Vote Cropped Duo](https://caitlinandmisha.com/viralvote/screenshots/ViralVote%20cropped%20Screen%20Shot%202020-04-02%20at%2011.36.51%20PM%20copy.png)
+![Image of Viral Vote Cropped Duo](https://caitlinandmisha.com/viralvote/screenshots/ViralVote%20Screen%20Shot%202020-04-02%20at%2011.36.51%20PM%20copy.jpg)
 
 
 ![Image of Viral Accumulation](https://caitlinandmisha.com/viralvote/screenshots/ViralVote%20Screen%20Shot%202020-04-03%20at%207.26.52%20PM.png)
