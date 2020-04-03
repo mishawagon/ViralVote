@@ -1,4 +1,4 @@
-# AR game for the browser that plays with the issues of voting during the pandemic
+# AR game for the browser that plays with the issues surrounding voting during the pandemic
 
 ![Image of Viral Vote Virus](http://caitlinandmisha.com/viralvote/textures/Covid19-2.png)
 
