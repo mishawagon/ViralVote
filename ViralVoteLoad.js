@@ -853,7 +853,7 @@ function main(){
       } else {
       }
 
-      var maxViralLoad = 150; //Stay under the max to survive
+      var maxViralLoad = 450; //Stay under the max to survive
       var truncatedViralLoad = trueViralLoad.length > maxViralLoad ? maxViralLoad : trueViralLoad.length;
 
       if (ViralLoadBar != null && ViralLoadBarOutline != null) {
