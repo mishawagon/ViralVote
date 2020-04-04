@@ -17,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 30, DRUMPFVoteLoadAnimationThreshold = 10; //above 10
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 60, DRUMPFVoteLoadAnimationThreshold = 10; //above 10
 let ISDETECTED = false, textBack = null;
 
 
@@ -493,7 +493,7 @@ function init_babylonScene(spec){
     particle.rotation.x += 0.05 * sign2;
     particle.rotation.y += 0.008 * sign2;
 
-    if (mouthOpening > 0.7 && GLOB_face) {
+    if (mouthOpening > 0.85 && GLOB_face) {
       particle.isVisible = true;
     } else {
       if (GLOB_face) {
