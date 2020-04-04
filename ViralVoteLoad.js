@@ -318,7 +318,7 @@ function init_babylonScene(spec){
   mat2.diffuseTexture = texture2;
 
 
-  // Second mouth spew particle system
+  // Second mouth spew vote load particle system
 
   var particleNb2 = 10;
   SPS2 = new BABYLON.SolidParticleSystem('SPS2', BABYLONSCENE, {particleIntersection: true, boundingSphereOnly: true, bSphereRadiusFactor: .2, useModelMaterial: true});
