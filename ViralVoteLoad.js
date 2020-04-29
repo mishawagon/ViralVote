@@ -78,6 +78,8 @@ function init_babylonScene(spec){
   // INIT THE BABYLON.JS context:
   var canvas = document.getElementById("jeeFaceFilterCanvas");
 
+
+
   BABYLONENGINE = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
 
   // CREATE THE SCENE:
@@ -121,8 +123,16 @@ function init_babylonScene(spec){
   BABYLONFACEOBJ3DPIVOTED.addChild(MouthMesh);
   MouthMesh.position.set(0,-0.4,0);
 
-
-
+  //syntheticmagus
+  //https://forum.babylonjs.com/t/ar-game-mechanics-across-devices/10296/3
+  /*
+  var perfMon = new BABYLON.PerformanceMonitor(1);
+  perfMon.enable();
+  BABYLONSCENE.onBeforeRenderObservable.add(() => {
+      perfMon.sampleFrame();
+      console.log("This frame took " + perfMon.instantaneousFrameTime + " milliseconds.");
+  });
+  */
   BABYLONSCENE.clearColor = new BABYLON.Color3( .2, .3, .6);
 
   var pl = new BABYLON.PointLight("pl", new BABYLON.Vector3(0, 0, 0), BABYLONSCENE);
@@ -135,7 +145,9 @@ function init_babylonScene(spec){
   //pl.position = camera.position;
 
   var sphereRadius = .55;
-  var ground = BABYLON.MeshBuilder.CreateGround("gd", {width: 10.0, height: 10.0}, BABYLONSCENE);
+  var ground = BABYLON.MeshBuilder.CreateGround("ground for virus", {width: 10.0, height: 10.0}, BABYLONSCENE);
+  var ground2 = BABYLON.MeshBuilder.CreateGround("ground for votes", {width: 10.0, height: 10.0}, BABYLONSCENE);
+
   var sphere = BABYLON.Mesh.CreateSphere("sphere", 10, sphereRadius * 2.0, BABYLONSCENE);
 
   sphere.getBoundingInfo().boundingSphere.scale(0.4);
@@ -173,10 +185,20 @@ function init_babylonScene(spec){
 
   //ground.rotation.x = Math.PI / 2.0;
   ground.position.x = 0;
-  ground.position.y = -6;
+  ground.position.y = -5.2;
   ground.position.z = 10;
 
-  ground.rotation.x = 290 * (Math.PI /180);
+  ground.rotation.x = 0;
+
+
+
+  ground2.material = matGround;
+
+  ground2.position.x = 0;
+  ground2.position.y = -2;
+  ground2.position.z = -1;
+
+  ground2.rotation.x = 290 * (Math.PI /180);
 
 
 
@@ -347,11 +369,21 @@ function init_babylonScene(spec){
 
 
 
+
+  /*
+  console.log("!!!!!!!!!!!!!!!!!")
+    console.log("!!!!!!!!!!!!!!!!!")
+      console.log("!!!!!!!!!!!!!!!!!")
+      console.log(perfMon.instantaneousFrameTime)
+      console.log("!!!!!!!!!!!!!!!!!")
+    console.log("!!!!!!!!!!!!!!!!!")
+  console.log("!!!!!!!!!!!!!!!!!")
+  */
   // shared variables
-  var speed2 = .2;                  // particle max speed
+  var speed2 = .2;//* perfMon.instantaneousFrameTime / 80;                  // particle max speed
   var cone2 = 0.4;                   // emitter aperture
   var gravity2 = 0.01;//-speed / 400;       // gravity
-  var restitution2 = 0;           // energy restitution
+  var restitution2 = .5;           // energy restitution
   var k2 = 0.0;
   var sign2 = 1;
   var tmpPos2 = BABYLON.Vector3.Zero();          // current particle world position
@@ -406,7 +438,10 @@ function init_babylonScene(spec){
   SPS2.updateParticle = function(particle) {
 
     // recycle if touched the ground
-    if ((particle.position.y + mesh2.position.y) < ground.position.y) {
+    //changing to z because it's rotated up
+
+    // recycle if touched the ground
+    if ((particle.position.z + mesh2.position.z) < ground2.position.z) {
       this.recycleParticle(particle);
     }
 
@@ -722,7 +757,7 @@ function init_babylonScene(spec){
 
     CreateVoteLoadBar();
 
-  //BABYLONSCENE.debugLayer.show();
+  BABYLONSCENE.debugLayer.show();
 
   // ADD A LIGHT:
   const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 1, 0), BABYLONSCENE);
