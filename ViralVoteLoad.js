@@ -125,14 +125,14 @@ function init_babylonScene(spec){
 
   //syntheticmagus
   //https://forum.babylonjs.com/t/ar-game-mechanics-across-devices/10296/3
-  /*
+
   var perfMon = new BABYLON.PerformanceMonitor(1);
   perfMon.enable();
   BABYLONSCENE.onBeforeRenderObservable.add(() => {
       perfMon.sampleFrame();
-      console.log("This frame took " + perfMon.instantaneousFrameTime + " milliseconds.");
+      //console.log("This frame took " + perfMon.instantaneousFrameTime + " milliseconds.");
   });
-  */
+
   BABYLONSCENE.clearColor = new BABYLON.Color3( .2, .3, .6);
 
   var pl = new BABYLON.PointLight("pl", new BABYLON.Vector3(0, 0, 0), BABYLONSCENE);
@@ -380,11 +380,11 @@ function init_babylonScene(spec){
   console.log("!!!!!!!!!!!!!!!!!")
   */
   // shared variables
-  var speed2 = .2;//* perfMon.instantaneousFrameTime / 80;                  // particle max speed
+  var speed2 = .06;//* perfMon.instantaneousFrameTime / 80;                  // particle max speed
   var cone2 = 0.4;                   // emitter aperture
-  var gravity2 = 0.01;//-speed / 400;       // gravity
-  var restitution2 = .5;           // energy restitution
-  var k2 = 0.0;
+  var gravity2 = -speed / 1400;       // gravity
+  var restitution2 = .9;           // energy restitution
+  //var k2 = 0.0;
   var sign2 = 1;
   var tmpPos2 = BABYLON.Vector3.Zero();          // current particle world position
   var tmpNormal2 = BABYLON.Vector3.Zero();       // current sphere normal on intersection point
@@ -411,6 +411,7 @@ function init_babylonScene(spec){
     particle.position.y = 0;
     particle.position.z = 0;
     particle.velocity.x = Math.random() * speed2;
+    console.log("DST2 "+perfMon.instantaneousFPS);
     particle.velocity.y = (Math.random() - 0.3) * cone2 * speed2;
     particle.velocity.z = (Math.random() - 0.5) * cone2 * speed2;
 
@@ -757,7 +758,7 @@ function init_babylonScene(spec){
 
     CreateVoteLoadBar();
 
-  BABYLONSCENE.debugLayer.show();
+//BABYLONSCENE.debugLayer.show();
 
   // ADD A LIGHT:
   const pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 1, 0), BABYLONSCENE);
@@ -1017,7 +1018,7 @@ var ShowRestartGUI = function() {
 
             var buttext = GameState == "won-restart" ? "textures/winagain.png" : "textures/tryagain.png";
             var button = BABYLON.GUI.Button.CreateImageWithCenterTextButton("button", "", buttext);
-            button.top = GameState == "won-restart" ? "380px" : "0px";
+            button.top = GameState == "won-restart" ? "30%" : "0px";
             GameState = "stop";
             button.left = "0px";
             button.width = "300px";
