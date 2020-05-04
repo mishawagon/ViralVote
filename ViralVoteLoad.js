@@ -593,8 +593,8 @@ function init_babylonScene(spec){
       DRUMPF.rotation.y = (36 * Math.sin(stuff) * -1 + 178) * (Math.PI/180);
 
 
-      
-      InstaDeathDelay = true;
+
+      InstaDeathDelay = true; //this is to help a weird bug where insta death happened when SPS2 particle (vote particles) is initalized and setup. It diminished the political head right away, so maybe it can just be delayed until the head is fully loaded.
   });
 
   //Thanos effect variables
