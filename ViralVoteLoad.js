@@ -17,7 +17,7 @@ const SETTINGS = {
 };
 
 // some globalz:
-let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 60, DRUMPFVoteLoadAnimationThreshold = 10; //above 10
+let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, InstaDeathDelay = false, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 60, DRUMPFVoteLoadAnimationThreshold = 10; //above 10
 let ISDETECTED = false, textBack = null;
 
 
@@ -80,7 +80,7 @@ function init_babylonScene(spec){
 
 
 
-  BABYLONENGINE = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+  BABYLONENGINE = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: false, stencil: false, deterministicLockstep: true, });
 
   // CREATE THE SCENE:
   BABYLONSCENE = new BABYLON.Scene(BABYLONENGINE);
@@ -248,9 +248,11 @@ function init_babylonScene(spec){
 
   // SPS initialization : just recycle all
   SPS.initParticles = function() {
+
     for (var p = 0; p < SPS.nbParticles; p++) {
       SPS.recycleParticle(SPS.particles[p]);
     }
+
   };
 
   // recycle : reset the particle at the emitter origin
@@ -400,9 +402,11 @@ function init_babylonScene(spec){
 
   // SPS initialization : just recycle all
   SPS2.initParticles = function() {
+
     for (var p = 0; p < SPS2.nbParticles; p++) {
       SPS2.recycleParticle(SPS2.particles[p]);
     }
+
   };
 
   // recycle : reset the particle at the emitter origin
@@ -411,7 +415,7 @@ function init_babylonScene(spec){
     particle.position.y = 0;
     particle.position.z = 0;
     particle.velocity.x = Math.random() * speed2;
-    console.log("DST2 "+perfMon.instantaneousFPS);
+    //console.log("DST2 "+perfMon.instantaneousFPS);
     particle.velocity.y = (Math.random() - 0.3) * cone2 * speed2;
     particle.velocity.z = (Math.random() - 0.5) * cone2 * speed2;
 
@@ -419,10 +423,6 @@ function init_babylonScene(spec){
     particle.rotation.y = -Math.PI;//Math.random() * Math.PI;
     particle.rotation.z = -Math.PI/2;//Math.random() * Math.PI;
 
-    //particle.color.r = 0.0;
-    //particle.color.g = 1.0;
-    //particle.color.b = 0.0;
-    //particle.color.a = 1.0;
   };
 
   //Drumpf's collision sphere
@@ -447,7 +447,7 @@ function init_babylonScene(spec){
     }
 
     // intersection
-    if (particle.intersectsMesh(sphereDrumpf)) {
+    if (particle.intersectsMesh(sphereDrumpf) && InstaDeathDelay) {
 
         if (!VotesLanded.includes(particle.idx)) { VotesLanded.push(particle.idx)};
 
@@ -545,7 +545,6 @@ function init_babylonScene(spec){
   SPS2.initParticles();
   SPS2.setParticles();
 
-
   SPS2.computeParticleRotation = false;
   SPS2.computeParticleColor = false;
   SPS2.computeParticleTexture = false;
@@ -593,16 +592,10 @@ function init_babylonScene(spec){
 
       DRUMPF.rotation.y = (36 * Math.sin(stuff) * -1 + 178) * (Math.PI/180);
 
-      //sound
-      //voteOutSound.attachToMesh(DRUMPF);
+
+      
+      InstaDeathDelay = true;
   });
-  //sound
-  /*
-	var myAnalyser = new BABYLON.Analyser(scene);
-	BABYLON.Engine.audioEngine.connectToAnalyser(myAnalyser);
-	myAnalyser.FFT_SIZE = 3;
-	myAnalyser.SMOOTHING = 0.9;
-  */
 
   //Thanos effect variables
   var time = 0;
@@ -636,7 +629,7 @@ function init_babylonScene(spec){
       }
 
     }
-
+    // lost state animation
     if (DRUMPF != null && GameState == "lost" && GameState != "stop") {
 
       GameState = "animatingEnd";
@@ -685,19 +678,27 @@ function init_babylonScene(spec){
     }
 
 
-    if (SPS != null) SPS.setParticles();
-
-
-    if (SPS2 != null) SPS2.setParticles();
-
 
     k += kInterval;
 
     //for Thanos effect
     time+=BABYLONSCENE.getAnimationRatio()*rate;
 
-    //sound
-    //var analyzedSound = myAnalyser.getByteFrequencyData();
+    //trying to get animation ratio working
+    console.log("!!!!!!!")
+    console.log("!!!!!!!")
+    console.log(BABYLONSCENE.getAnimationRatio());
+    console.log("!!!!!!!")
+    console.log("!!!!!!!")
+
+
+
+    if (SPS != null) SPS.setParticles();
+
+
+    if (SPS2 != null) SPS2.setParticles();
+
+
   });
 
 
