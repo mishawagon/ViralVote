@@ -18,7 +18,7 @@ const SETTINGS = {
 
 // some globalz:
 let BABYLONVIDEOTEXTURE = null, BABYLONENGINE = null, BABYLONFACEOBJ3D = null, BABYLONFACEOBJ3DPIVOTED = null, BABYLONSCENE = null, BABYLONCAMERA = null, ASPECTRATIO = -1, JAWMESH = null, da_sphere = null, GLOB_face = false, text1 = "", MouthMesh = null, SPS2 = null, InstaDeathDelay = false, mouthOpening = 0, DRUMPF = null, sphereDrumpf = null, VoteLoad = 0, kInterval = 0, trueViralLoad = [], VotesLanded = [], drumpfStartColor=null, ViralLoadBar = null, ViralLoadBarOutlineStartColor = null, ViralLoadBarOutline = null, advancedTexture = null, GameState = 0, VoteLoadBar = null, VoteLoadBarOutline = null, VoteLoadBarOutlineStartColor = null, DrumpfMultiplies = null, maxVoteLoad = 60, DRUMPFVoteLoadAnimationThreshold = 10; //above 10
-let ISDETECTED = false, textBack = null;
+let ISDETECTED = false, textBack = null, speed = 0.01, speed2 = 0.01, standardSpeed = 40, ref_speed = .05, ref_speed2 = .08;
 
 
 // analoguous to GLSL smoothStep function:
@@ -125,14 +125,14 @@ function init_babylonScene(spec){
 
   //syntheticmagus
   //https://forum.babylonjs.com/t/ar-game-mechanics-across-devices/10296/3
-
+  /*
   var perfMon = new BABYLON.PerformanceMonitor(1);
   perfMon.enable();
   BABYLONSCENE.onBeforeRenderObservable.add(() => {
       perfMon.sampleFrame();
       //console.log("This frame took " + perfMon.instantaneousFrameTime + " milliseconds.");
   });
-
+  */
   BABYLONSCENE.clearColor = new BABYLON.Color3( .2, .3, .6);
 
   var pl = new BABYLON.PointLight("pl", new BABYLON.Vector3(0, 0, 0), BABYLONSCENE);
@@ -225,11 +225,11 @@ function init_babylonScene(spec){
 
 
   // shared variables
-  var speed = .05;                  // particle max speed
+  speed = ref_speed;                  // particle max speed
   var cone = 0.9;                   // emitter aperture
   var gravity = -speed / 100;       // gravity
   var restitution = 0;           // energy restitution
-  var k = 0.0;
+  var k = 0.0;  //drumpf rotaton step
   var sign = 1;
   var tmpPos = BABYLON.Vector3.Zero();          // current particle world position
   var tmpNormal = BABYLON.Vector3.Zero();       // current sphere normal on intersection point
@@ -369,23 +369,11 @@ function init_babylonScene(spec){
   SPS2.isAlwaysVisible = true;
 
 
-
-
-
-  /*
-  console.log("!!!!!!!!!!!!!!!!!")
-    console.log("!!!!!!!!!!!!!!!!!")
-      console.log("!!!!!!!!!!!!!!!!!")
-      console.log(perfMon.instantaneousFrameTime)
-      console.log("!!!!!!!!!!!!!!!!!")
-    console.log("!!!!!!!!!!!!!!!!!")
-  console.log("!!!!!!!!!!!!!!!!!")
-  */
   // shared variables
-  var speed2 = .06;//* perfMon.instantaneousFrameTime / 80;                  // particle max speed
+   speed2 = ref_speed2;//* perfMon.instantaneousFrameTime / 80;                  // particle max speed
   var cone2 = 0.4;                   // emitter aperture
   var gravity2 = -speed / 1400;       // gravity
-  var restitution2 = .9;           // energy restitution
+  var restitution2 = 1.2;           // energy restitution
   //var k2 = 0.0;
   var sign2 = 1;
   var tmpPos2 = BABYLON.Vector3.Zero();          // current particle world position
@@ -601,8 +589,43 @@ function init_babylonScene(spec){
   var time = 0;
   var rate = 0;//0.01;
 
+  //https://stackoverflow.com/questions/8279729/calculate-fps-in-canvas-using-requestanimationframe
+  var lastCalledTime;
+  var fps;
+  var averageFPS = 0;
+
+  function requestAnimFrame() {
+
+    if(!lastCalledTime) {
+       lastCalledTime = performance.now();
+       fps = 0;
+       return;
+    }
+    var delta = (performance.now() - lastCalledTime)/1000;
+
+
+
+    lastCalledTime = performance.now();
+    fps = 1/delta;
+
+    averageFPS = (averageFPS + fps)/2;
+
+    var manualAnimRatio = standardSpeed/averageFPS; //standardSpeed globalz is what I get on my computer so that's my base. Stupid, I know. But i dont know how else to do it https://forum.babylonjs.com/t/ar-game-mechanics-across-devices/10296/8
+    //console.log(averageFPS+"    "+manualAnimRatio);
+    return manualAnimRatio;//parseInt(averageFPS);
+  }
+
+
 
   BABYLONSCENE.registerBeforeRender(function() {
+    //console.log(requestAnimFrame())//BABYLONSCENE.getEngine().getDeltaTime())
+
+    //performance based particle speed tweak
+    var ratty = requestAnimFrame();
+    if (ratty > 0.2 && ratty < 5) {
+      //speed = ref_speed*ratty;
+      speed2 = ref_speed2*ratty;
+    }
 
 
     // animation of Drumpf's head which escalates as more votes land (like a boss)
@@ -681,15 +704,11 @@ function init_babylonScene(spec){
 
     k += kInterval;
 
+
     //for Thanos effect
     time+=BABYLONSCENE.getAnimationRatio()*rate;
 
-    //trying to get animation ratio working
-    console.log("!!!!!!!")
-    console.log("!!!!!!!")
-    console.log(BABYLONSCENE.getAnimationRatio());
-    console.log("!!!!!!!")
-    console.log("!!!!!!!")
+
 
 
 
