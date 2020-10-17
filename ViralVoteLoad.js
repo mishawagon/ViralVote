@@ -1,5 +1,13 @@
 "use strict";
 
+//https://stackoverflow.com/questions/831030/how-to-get-get-request-parameters-in-javascript
+function get_url_params(name){
+  if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search)) {
+    return decodeURIComponent(name[1]);
+  }
+
+}
+
 //https://rosettacode.org/wiki/Map_range#JavaScript
 let mapRange = function(from, to, s) {
   return to[0] + (s - from[0]) * (to[1] - to[0]) / (from[1] - from[0]);
@@ -1027,7 +1035,6 @@ var ShowRestartGUI = function() {
 
             text1.top = "400px";
             //advancedTexture.addControl(text1);
-            console.log("Try Again GUI fully loaded");
 
             var replayText =  "textures/replaytext.png";
             var replay = BABYLON.GUI.Button.CreateImageWithCenterTextButton("replay", "", replayText);
@@ -1047,7 +1054,12 @@ var ShowRestartGUI = function() {
             //replay.color = "#FF7979";
             //replay.background = "#FF6600";
 
+            console.log("Try Again GUI fully loaded");
+
+
             advancedTexture.addControl(replay);
+
+
           } else {
             advancedTexture.dispose();
           }
@@ -1078,6 +1090,7 @@ var ShowRestartGUI = function() {
             button.onPointerClickObservable.add(function () {
                 location.reload();
             });
+            if (get_url_params("touchless") == "true") setTimeout(function(){location.reload();}, 7000);
 
             gui.addControl(button);
 
