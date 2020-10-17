@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script type="text/javascript">
+        (function () {
+            const context = document.createElement("canvas").getContext("2d");
+            context.font = "200px SANS-SERIF"
+            const TEXT_TO_MEASURE = "A";
+            var FONT_WIDTH = context.measureText(TEXT_TO_MEASURE).width;
+            (function () {
+                var style = document.createElement("style");
+                style.setAttribute("type", "text/css");
+                style.textContent = `@font-face{font-family:'__DEFAULT_FONT__';src:url('data:application/font-woff;base64,d09GRgABAAAAAAM0AAsAAAAABCQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAABVPUy8yAAABcAAAADwAAABgNVxaOmNtYXAAAAG0AAAAKQAAADQADACUZ2FzcAAAAywAAAAIAAAACP//AANnbHlmAAAB6AAAACQAAAAwK9MKuGhlYWQAAAEIAAAAMwAAADYLo1XbaGhlYQAAATwAAAAcAAAAJP2RAdRobXR4AAABrAAAAAgAAAAIAMn9LGxvY2EAAAHgAAAABgAAAAYAGAAMbWF4cAAAAVgAAAAXAAAAIAAEAAVuYW1lAAACDAAAAQsAAAHwJKxCKHBvc3QAAAMYAAAAEwAAACD/KgCWeNpjYGRgYABi+QdqV+P5bb4ycHMwgMD1GraPEJqz/d80BoZ/PxgygFw2kFoGBgA++AvVAHjaY2BkYGBgBMOUf9MYc/79YACJIAMmAF7xBGN42mNgZGBgYGJgYQDRDFASCQAAAQEACgB42mNgZkhhnMDAysDAOovVmIGBURpCM19kSGMSYmBgAklhBR4+CgoMDgyOQMgIhhlgYUYoCaEZAIdLBiEAZP6WAGT+lnjaY2BgYGJgYGAGYhEgyQimWRgUgDQLEIL4jv//Q8j/B8B8BgBSlwadAAAAAAAADAAYAAB42mNg/DeNgeHfD4YMBmYGBkVTY9F/05IyMhgYcIgDAGnPDrV42oWQzU7CUBCFvwISZcEz3LjSBBoQ/yIrYzTEGEmIYY9QiglS01YMOx/DV+AtPXeophtjmumdOffMmXMH2GdOlaB2ACwUuzwQvi7yCk3d7PIqh794rcTZI+WryOslvMFn0OCJDW9EmjRhqtOxVRwJTXhXpxOa8CrOhJXQY0JhJ3Tocmn5NUt9jhEvxHKTk1kV6YyksNZ/ZnUsxaV0Uh4ZKm65YmycTL2J9J1UQ2l3/sT73JvKxlz0aJXc9Lkzds6NeiNNylWn1u37z0wjFP9UcSH8XFmbZ03JtYmFTu99Xqg4PqSR2Q5+9PxbnBx4Zyu9yP070+ultkPHoNhRmwchsaqpOLbhb0h9RfYAeNpjYGYAg//qDNMYsAAAKDQBwAAAAAAB//8AAg==');}`;
+                document.documentElement.appendChild(style);
+                var handleId = null;
+                (function initailizeDefaultFont() {
+                    context.font = "200px __DEFAULT_FONT__";
+                    var width = context.measureText(TEXT_TO_MEASURE).width;
+                    if (width != FONT_WIDTH) {
+                        FONT_WIDTH = width;
+                        cancelAnimationFrame(handleId);
+                    }
+                    else if (handleId == null) {
+                        handleId = requestAnimationFrame(initailizeDefaultFont);
+                    }
+
+                })();
+            })();
+            function checkFontAvailable(font) {
+                if (/^\s*SANS-SERIF\s*$/i.test(font)) {
+                    return true;
+                }
+                if (!font || font == '__DEFAULT_FONT__') {
+                    return false;
+                }
+
+                context.font = `200px ${font.replace(/^\s*['"]|['"]\s*$/g, "")}, __DEFAULT_FONT__`;
+
+                var width = context.measureText(TEXT_TO_MEASURE).width;
+
+                return width != FONT_WIDTH;
+            }
+            this.checkFontAvailable = checkFontAvailable;
+        }).apply(this);
+
+        console.log([checkFontAvailable("arial black b"), checkFontAvailable("arial black")]);
+    </script>
+</head>
+<body>
+
+</body>
+</html>
