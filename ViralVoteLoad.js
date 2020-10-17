@@ -1026,7 +1026,28 @@ var ShowRestartGUI = function() {
             text1.fontSize = "35px";
 
             text1.top = "400px";
-            advancedTexture.addControl(text1);
+            //advancedTexture.addControl(text1);
+            console.log("Try Again GUI fully loaded");
+
+            var replayText =  "textures/replaytext.png";
+            var replay = BABYLON.GUI.Button.CreateImageWithCenterTextButton("replay", "", replayText);
+            replay.top =  "38%";
+
+            replay.left = "0px";
+            replay.width = "500px";
+            replay.height = "90px";
+            //replay.cornerRadius = 20;
+            replay.thickness = 0;
+            //replay.children[0].color = "#0cfadb";
+            //replay.children[0].fontSize = 50;
+            //replay.children[0].fontFamily = 'vag_roundedregular';
+            //replay.children[0].top = '-20px';
+
+          //replay.children[0].rotation.x = 270 * (Math.PI/180); button.children[0].rotation.y = 180 * (Math.PI/180); button.children[0].rotation.z = 0;
+            //replay.color = "#FF7979";
+            //replay.background = "#FF6600";
+
+            advancedTexture.addControl(replay);
           } else {
             advancedTexture.dispose();
           }
