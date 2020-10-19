@@ -850,8 +850,17 @@ function init_babylonScene(spec){
 
 } //end init_babylonScene()
 
+function premain(){
+  //main();
+  document.getElementById("launchButton").style.visibility='visible';
+
+}
 // entry point:
 function main(){
+
+  var elem = document.querySelector('#disclaimer');
+  elem.parentNode.removeChild(elem);
+
   JEEFACEFILTERAPI.init({
     canvasId: 'jeeFaceFilterCanvas',
     NNCpath: '../../../dist/', // root of NNC.json file

@@ -16,18 +16,7 @@
     <title>Viral Vote</title>
     <!--https://github.com/mishawagon/ViralVote-->
 
-    <script>
-      /*
-      //This makes us sad but when can you do when Apple sucks? e.g. https://github.com/serratus/quaggaJS/issues/190
-      //"As Chrome on iOS runs on the same WebKit engine as Safari (limited by Apple), it does not support it either."
-      var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-      // Safari 3.0+ "[object HTMLElementConstructor]"
-      var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
-
-      if (iOS && !isSafari) alert("Safari only for iOS devices please, due to Apple imposing limits.")
-      */
-    </script>
 
     <!-- INCLUDE JEELIZ FACEFILTER SCRIPT -->
     <script src="dist/jeelizFaceFilter.js"></script>
@@ -61,7 +50,10 @@
 
 
     <link rel="stylesheet" href="appearance/style.css" type="text/css" />
+    <style>
 
+
+    </style>
     <!-- BABYLONJS CUSTOM SHADER MATERIAL GLSL CODES : -->
     <script type="application/vertexShader" id="videoMatVertexShaderCode">
       attribute vec3 position;
@@ -85,10 +77,13 @@
 
   </head>
 
-  <body onload="main()" style='color: white'>
+  <body onload="premain()" style='color: white'>
     <div id="disclaimer">
-      <img src="textures/disclaimer.png" alt="We don’t record video. Camera must be enabled for the augmented reality to work.">
+      <a href="#" id="launchButton" style="visibility: hidden" onclick="main()">
+        <img src="textures/disclaimer.png" alt="Click this to launch. Open and position mouth to cast votes against the target. Camera must be enabled for the augmented reality to work. We don't record video.">
+      </a>
     </div>
+
     <canvas width="600" height="600" id='jeeFaceFilterCanvas'></canvas>
 
   </body>

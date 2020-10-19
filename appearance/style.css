@@ -1,12 +1,19 @@
 #disclaimer {
-    z-index: 0;
+    z-index: 11;
     position: absolute;
     max-height: 100%;
     max-width: 100%;
     left: 50%;
     top: 50%;
     width: 100vmin;
-    transform: translate(-50%, -50%);
+    transform: translate(-51%, -51%);
+}
+
+#disclaimer img {
+  width: 100%;
+  position: absolute;
+  -ms-transform: translateY(-45%);
+  transform: translateY(-45%);
 }
 
 a {color: #eee; text-decoration: none}
