@@ -851,6 +851,11 @@ function init_babylonScene(spec){
 } //end init_babylonScene()
 
 function premain(){
+  if (get_url_params("retry") == "true") {
+    console.log("$$$$$")
+    main();
+    return;
+  }
   //main();
   document.getElementById("launchButton").style.visibility='visible';
 
@@ -1097,7 +1102,7 @@ var ShowRestartGUI = function() {
             button.background = "#EB4D4B";
 
             button.onPointerClickObservable.add(function () {
-                location.reload();
+              window.location = "https://caitlinandmisha.com/viralvote?retry=true"
             });
             if (get_url_params("touchless") == "true") setTimeout(function(){location.reload();}, 7000);
 
