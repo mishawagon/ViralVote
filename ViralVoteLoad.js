@@ -851,8 +851,7 @@ function init_babylonScene(spec){
 } //end init_babylonScene()
 
 function premain(){
-  if (get_url_params("retry") == "true") {
-    console.log("$$$$$")
+  if (localStorage.getItem("retry") == "true") {
     main();
     return;
   }
@@ -1102,7 +1101,9 @@ var ShowRestartGUI = function() {
             button.background = "#EB4D4B";
 
             button.onPointerClickObservable.add(function () {
-              window.location = "https://caitlinandmisha.com/viralvote?retry=true"
+              localStorage.setItem("retry", "true");
+              location.reload();
+              //window.location = "https://caitlinandmisha.com/viralvote?retry=true"
             });
             if (get_url_params("touchless") == "true") setTimeout(function(){location.reload();}, 7000);
 
