@@ -868,7 +868,7 @@ function main(){
 
   JEELIZFACEFILTER.init({
     canvasId: 'jeeFaceFilterCanvas',
-    NNCPath: '../../../neuralNets/', // root of NN_DEFAULT.json file
+    NNCPath: '../../neuralNets/', //for local use ../../../neuralNets/   // root of NN_DEFAULT.json file
     callbackReady: function(errCode, spec){
       if (errCode){
         console.log('AN ERROR HAPPENS. SORRY BRO :( . ERR =', errCode);
