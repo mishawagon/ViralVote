@@ -8,3 +8,9 @@
 ehthumbs.db
 Thumbs.db
 .idea/
+**/.DS_Store
+**/.directory
+.directory
+node_modules
+**/node_modules
+**/package-lock.json
