@@ -802,20 +802,21 @@ function init_babylonScene(spec){
     'videoMat',
     BABYLONSCENE,
     {
-      vertexElement: "videoMatVertexShaderCode", //cf index.html for shader source
+      vertexElement: "videoMatVertexShaderCode", // see index.html for shader source
       fragmentElement: "videoMatFragmentShaderCode"
     },
     {
       attributes: ["position"],
-      uniforms: []
+      uniforms: ["videoTransformMat2"]
       ,needAlphaBlending: false
     }
   );
   videoMaterial.disableDepthWrite = true;
   videoMaterial.setTexture("samplerVideo", BABYLONVIDEOTEXTURE);
+  videoMaterial.setMatrix2x2("videoTransformMat2", spec.videoTransformMat2);
 
   // for custom mesh see https://babylonjsguide.github.io/advanced/Custom
-  const videoMesh=new BABYLON.Mesh("custom", BABYLONSCENE);
+  const videoMesh=new BABYLON.Mesh("brokenRed", BABYLONSCENE);
   videoMesh.alwaysSelectAsActiveMesh = true; // disable frustum culling
   const vertexData = new BABYLON.VertexData();
   vertexData.positions = [-1,-1,1,   1,-1,1,   1,1,1,   -1,1,1]; // z is set to 1 (zfar)
@@ -865,18 +866,18 @@ function main(){
   var elem = document.querySelector('#disclaimer');
   elem.parentNode.removeChild(elem);
 
-  JEEFACEFILTERAPI.init({
+  JEELIZFACEFILTER.init({
     canvasId: 'jeeFaceFilterCanvas',
-    NNCpath: '../../../dist/', // root of NNC.json file
+    NNCPath: '../../../neuralNets/', // root of NN_DEFAULT.json file
     callbackReady: function(errCode, spec){
       if (errCode){
-        console.log('AN ERROR HAPPENS. SORRY :( . ERR =', errCode);
+        console.log('AN ERROR HAPPENS. SORRY BRO :( . ERR =', errCode);
         return;
       }
 
-      console.log('INFO : JEEFACEFILTERAPI IS READY');
+      console.log('INFO  JEELIZFACEFILTER IS READY');
       init_babylonScene(spec);
-    }, //end callbackReady()
+    },
 
     // called at each render iteration (drawing loop):
     callbackTrack: function(detectState){

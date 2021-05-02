@@ -25,9 +25,10 @@
     this is a heavy version of Babylon.js, including many features
     Build you own minified version of Babylon.js on https://www.babylonjs.com/versionbuilder/
     -->
-    <!--<script src="../../../libs/babylonjs/v3_1/babylon.custom.js"></script>-->
+    <!--<script src="libs/babylonjs/v3_1/babylon.custom.js"></script>-->
 
     <!-- Babylon.js -->
+    <!--
     <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
     <script src="https://preview.babylonjs.com/ammo.js"></script>
@@ -43,6 +44,28 @@
     <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
     <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
     <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  -->
+
+  <!--<script src="https://preview.babylonjs.com/libktx.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/libktx.js"></script>
+  <!--<script src="https://preview.babylonjs.com/earcut.min.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/earcut.min.js"></script>
+  <!--<script src="https://preview.babylonjs.com/babylon.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/babylon.js"></script>
+  <!--<script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/inspector/babylon.inspector.bundle.js"></script>
+  <!--<script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/materialsLibrary/babylonjs.materials.min.js"></script>
+  <!--<script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <!--<script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+  <!--<script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/loaders/babylonjs.loaders.js"></script>
+  <!--<script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/serializers/babylonjs.serializers.min.js"></script>
+  <!--<script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>-->
+  <script src="libs/Babylon.js-4.2.0-alpha.35/dist/gui/babylon.gui.min.js"></script>
 
 
     <!-- INCLUDE DEMO SCRIPT -->
@@ -57,11 +80,12 @@
     <!-- BABYLONJS CUSTOM SHADER MATERIAL GLSL CODES : -->
     <script type="application/vertexShader" id="videoMatVertexShaderCode">
       attribute vec3 position;
+      uniform mat2 videoTransformMat2;
       varying vec2 vUV;
 
       void main(void){
-        gl_Position=vec4(position, 1.);
-        vUV=0.5+0.5*position.xy;
+        gl_Position = vec4(position, 1.);
+        vUV = 0.5 + videoTransformMat2 * position.xy;
       }
     </script>
 
@@ -71,7 +95,7 @@
       varying vec2 vUV;
 
       void main(void){
-        gl_FragColor=texture2D(samplerVideo, vUV);
+        gl_FragColor = texture2D(samplerVideo, vUV);
       }
     </script>
 
